@@ -1,9 +1,9 @@
 // Rosepetal Music · 05 · Lofi (en desarrollo)
-// Lofi hip-hop, 88 BPM, Sol mayor. Bucle de 8 compases (1 ciclo = 1 compás, ~22 s).
+// Lofi hip-hop, 94 BPM, Sol mayor. Bucle de 8 compases (1 ciclo = 1 compás, ~20 s). Batería al frente.
 // Armonía (2 compases por acorde, ii–V–I–IV): La m9 | Re9 | Sol maj9 | Do maj9.
 // Piano Steinway a dos manos, bajito, apagado y con «bamboleo» de cinta (cada nota sale un pelo desafinada): la izquierda
 // con el bajo en el 1 y acordes graves con swing, la derecha con una melodía de dos o tres notas; un xilófono (SFXMint) repite
-// por detrás, en agudo, una melodía muy simple; bajo redondo que camina hacia el acorde siguiente; batería boom-bap
+// por detrás, en agudo y bajito, corcheas que dibujan cada acorde (VCSL, mazas suaves); bajo redondo que camina hacia el acorde siguiente; batería boom-bap
 // polvorienta; mucho vinilo: crepitar, siseo de aguja y la chimenea de SFXMint como polvo.
 // Ligera: ~35 notas por compás, una sola reverb (canal 2: piano y pad), bajo y batería secos.
 
@@ -26,11 +26,9 @@ stack(
     .swingBy(1/3, 4).s("steinway").velocity(0.34).speed(perlin.range(0.994, 1.006))
     .lpf(2500).orbit(2).room(0.5).size(3).pan(0.55).gain(0.3),
 
-  // Xilófono suave (SFXMint, Fa#6) por detrás, en agudo: motivo muy simple que baja (Mi Re Si / La)
-  // speed = 2^((nota − 90,2)/12): Fa#5 0,4943 · Sol5 0,5237 · La5 0,5878 · Si5 0,6598 · Re6 0,7846 · Mi6 0,8807
-  s("<[x ~ ~ x ~ ~ x ~] [~ ~ ~ ~ x ~ ~ ~]>").s("sfx_xylophone_note_03")
-    .speed("<[0.8807 ~ ~ 0.7846 ~ ~ 0.6598 ~] [~ ~ ~ ~ 0.5878 ~ ~ ~] [0.8807 ~ ~ 0.7846 ~ ~ 0.5878 ~] [~ ~ ~ ~ 0.4943 ~ ~ ~] [0.7846 ~ ~ 0.6598 ~ ~ 0.5878 ~] [~ ~ ~ ~ 0.4943 ~ ~ ~] [0.8807 ~ ~ 0.7846 ~ ~ 0.6598 ~] [~ ~ ~ ~ 0.5237 ~ ~ ~]>")
-    .swingBy(1/3, 4).lpf(6000).orbit(2).room(0.55).size(3).pan(0.7).gain(0.3),
+  // Xilófono (VCSL, mazas suaves, micro lejano) muy por detrás: corcheas con swing que dibujan cada acorde
+  note("<[e5 ~ g5 b5 ~ g5 e5 ~] [d5 ~ e5 g5 ~ e5 d5 ~] [f#5 ~ a5 c6 ~ a5 f#5 ~] [e5 ~ f#5 a5 ~ f#5 e5 ~] [d5 ~ f#5 a5 ~ f#5 d5 ~] [b4 ~ d5 f#5 ~ d5 b4 ~] [e5 ~ g5 b5 ~ g5 e5 ~] [d5 ~ e5 g5 ~ b5 a5 ~]>")
+    .swingBy(1/3, 4).s("xylophone").lpf(7000).orbit(2).room(0.55).size(3).pan(0.7).gain(0.13),
 
   // Bajo redondo (triángulo filtrado)
   note("<[a1@5 ~ e2 ~] [a1@3 ~ c2@2 d2@2] [d2@5 ~ a1 ~] [d2@3 ~ c2@2 a1@2] [g1@5 ~ d2 ~] [g1@3 ~ b1@2 c2@2] [c2@5 ~ g1 ~] [c2@3 ~ e2@2 b1@2]>")
@@ -38,10 +36,10 @@ stack(
 
   // Batería boom-bap con swing (SFXMint): bombo, caja apagada y un pelo tarde, golpe de aro de vez en cuando
   s("<[x ~ ~ ~ ~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~] [x ~ ~ x ~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~]>").s("sfx_acoustic_drum_kit_kick_01")
-    .swingBy(1/3, 8).lpf(700).gain(0.95),
-  s("[~ x ~ x]").s("sfx_acoustic_drum_kit_snare_01").late(0.02).lpf(2600).hpf(180).gain(0.6),
+    .swingBy(1/3, 8).lpf(700).gain(1.25),
+  s("[~ x ~ x]").s("sfx_acoustic_drum_kit_snare_01").late(0.02).lpf(2600).hpf(180).gain(0.85),
   s("<[~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~] [~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ x]>").s("sfx_acoustic_drum_kit_snare_cross_stick_01")
-    .swingBy(1/3, 8).lpf(3000).gain(0.12),
+    .swingBy(1/3, 8).lpf(3000).gain(0.2),
   // Charles a corcheas con swing, apagados
-  s("white*8").swingBy(1/3, 4).decay(0.03).sustain(0).hpf(6000).lpf(8500).gain("[0.06 0.028]*4").pan(0.56)
-).cpm(88 / 4)
+  s("white*8").swingBy(1/3, 4).decay(0.03).sustain(0).hpf(6000).lpf(8500).gain("[0.085 0.04]*4").pan(0.56)
+).cpm(94 / 4)

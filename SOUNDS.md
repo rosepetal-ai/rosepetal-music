@@ -21,7 +21,6 @@ Descargados el 2026-11-04 con el conector de SFXMint (`https://sfxmint.com/mcp`)
 | `sfx_acoustic_drum_kit_snare_01` | acoustic-drum-kit-snare-01.wav | 1,5 s | — | https://sfxmint.com/sounds/acoustic-drum-kit-snare-01 | `467bf419366117e66d4047161ebcce9dc29616b57b931d1afb1e67f38fc27e33` |
 | `sfx_acoustic_drum_kit_snare_cross_stick_01` | acoustic-drum-kit-snare-cross-stick-01.wav | 2,0 s | — | https://sfxmint.com/sounds/acoustic-drum-kit-snare-cross-stick-01 | `874ca9f42f2d08ef7f91c2dc6eb8f4ce1ef1e5b068f0efead62ca3b6c16ab04e` |
 | `sfx_acoustic_drum_kit_crash_01` | acoustic-drum-kit-crash-01.wav | 6,0 s | — | https://sfxmint.com/sounds/acoustic-drum-kit-crash-01 | `c5876f39c6a2010f4f23bea3a03d2e699f63fb254685ac084076ff7de8d7b946` |
-| `sfx_xylophone_note_03` | xylophone-note-03.wav | 1,1 s | Fa#6 (+20 cents) | https://sfxmint.com/sounds/xylophone-note-03 | `8cd6a793490dce313a5aaa6dd233ba1f85fd9f3b6bc8c2cb8157f2c1b639af6a` |
 
 Para afinar un sample melódico en Strudel: `speed = 2^(semitonos / 12)` desde su nota medida.
 
@@ -56,6 +55,21 @@ Para afinar un sample melódico en Strudel: `speed = 2^(semitonos / 12)` desde s
 | steinway_Gs3.wav | `42d1df972e67f1048823fad81c02204af10fe9e7f95b2a7d03aecd5f4d0bd6d8` |
 | steinway_Gs4.wav | `daccb54ac3c8b5281e86585b2a8aea63898a44ac97258c1e4b825681e427da0d` |
 | steinway_Gs5.wav | `03f3c642cafd68a9bd3a8338b02436d458bef0702aaee5b8843b6a849a0bbd18` |
+
+## VCSL · CC0 · xilófono (mazas suaves)
+
+- **Origen:** VCSL, carpeta `Idiophones/Struck Idiophones/Xylophone/Soft Mallets`, dinámica `pp`, micro lejano (`far`). Descargado el 2026-11-04.
+- **Licencia:** CC0 1.0.
+- **Procesado:** de 24 a 16 bits, recortados a 3 s con un fundido de 0,6 s. El xilófono suena una octava por encima de lo que dicen los nombres originales (`Xylo_Soft_C5` suena Do6, medido), así que se renombraron con la nota que suena: `xylophone_C6.wav` es Do6.
+- **Ubicación:** [samples/VCSL/xylophone/](samples/VCSL/xylophone/): 5 notas (Sol5, Do6, Sol6, Do7, Sol7). El servidor las sirve como el banco afinado `xylophone`.
+
+| Archivo | SHA-256 (procesado) |
+|---|---|
+| xylophone_C6.wav | `3725223c3d0e20e86a5a3a3d4aa9981817c24a874eacd52e0ecb116bbf3a2db4` |
+| xylophone_C7.wav | `37f27e948e3dd0f7199fe0343422be09bced11e4509056787892d300ffd4cd73` |
+| xylophone_G5.wav | `0f4679816e2a4576c9311e068651ec77fcf2a765358d8bf2fea9570ea304121c` |
+| xylophone_G6.wav | `058fcea3b7ee97753f074309e10588992d3a87eade415111d0b98bd11dec25a9` |
+| xylophone_G7.wav | `3cc355a2ed0a54981e417ede83299c6d0454d7cbced0b12e1a8ed61e27d461b8` |
 
 ## Missing
 
