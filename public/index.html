@@ -46,10 +46,13 @@ const recTaps = new WeakMap();
 const origConnect = AudioNode.prototype.connect;
 AudioNode.prototype.connect = function (dest, ...rest) {
   const r = origConnect.call(this, dest, ...rest);
-  if (dest instanceof AudioDestinationNode) {
-    let tap = recTaps.get(dest.context);
-    if (!tap) { tap = dest.context.createMediaStreamDestination(); recTaps.set(dest.context, tap); }
-    origConnect.call(this, tap);
+  // Solo contextos en tiempo real: Strudel también usa OfflineAudioContext (reverb), que no tiene MediaStreamDestination
+  if (dest instanceof AudioDestinationNode && typeof dest.context.createMediaStreamDestination === 'function') {
+    try {
+      let tap = recTaps.get(dest.context);
+      if (!tap) { tap = dest.context.createMediaStreamDestination(); recTaps.set(dest.context, tap); }
+      origConnect.call(this, tap);
+    } catch (err) { console.warn('[rosepetal] grabación', err); }
   }
   return r;
 };

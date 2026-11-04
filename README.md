@@ -29,9 +29,11 @@ Si no lo encuentra, dale el puerto de la pestaña de DJ Claude: `curl -X POST "h
 
 | Archivo | Qué es |
 |---|---|
-| `01-petalos-bajo-la-lluvia.strudel` | 75 BPM, bucle de 16 compases. Lluvia y crepitar de vinilo, acorde de piano, pad de piano eléctrico y flauta lenta con aire Nujabes. Fa maj9 · Mi m7 · Re m9 · La m9. Batería suave solo en la segunda mitad. |
+| `01-petalos-bajo-la-lluvia.strudel` | 75 BPM, bucle de 16 compases. Lluvia y crepitar de vinilo, piano troceado, pad de piano eléctrico, arpegio de campanita, bajo que camina y dos flautas con aire Nujabes. Fa maj9 · Mi m7 · Re m9 · La m9. La batería suave entra en el compás 5. |
 
 Cada pieza lleva en sus comentarios la forma, la armonía y la afinación de los samples.
+
+Ojo al escribir piezas: en Strudel las comillas dobles son patrones de mini-notación, no textos de JavaScript. Métodos como `"...".replace()` fallan; escribe los nombres de los samples completos.
 
 ## Cómo está hecho
 
