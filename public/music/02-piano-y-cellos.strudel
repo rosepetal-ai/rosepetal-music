@@ -4,6 +4,7 @@
 // Bucle de 16 compases (1 ciclo = 1 compás, ~51 s):
 //   1–4 piano y primer cello · 5–8 entran el pizzicato y la batería · 9–16 segundo cello y la melodía sube.
 // Armonía (2 compases por acorde): Fa maj9 | Mi m7 | Re m9 | La m9.
+// Reverb por canal (orbit) con un solo tamaño cada uno, para que no se recalcule y corte: 1 batería y bajo (sala 3) · 2 piano y cellos (sala 4).
 // Los cellos se reparten el movimiento: el 1.º se mueve en los compases pares y el 2.º en los impares, mientras el otro sostiene.
 //
 // Instrumentos:
@@ -19,35 +20,35 @@ stack(
 
   // Piano, mano izquierda: acorde suave en el 1 y un eco a contratiempo en el segundo compás de cada acorde
   note("<[f3,a3,c4,e4]!2 [e3,g3,b3,d4]!2 [d3,f3,a3,c4,e4]!2 [a2,e3,g3,b3,c4]!2>").s("steinway")
-    .struct("<[x ~ ~ ~] [x ~ [~ x] ~]>").velocity("<0.38 [0.34 0.24]>").lpf(3200).room(0.45).size(3).pan(0.45).gain(0.8),
+    .struct("<[x ~ ~ ~] [x ~ [~ x] ~]>").velocity("<0.38 [0.34 0.24]>").lpf(3200).orbit(2).room(0.45).size(4).pan(0.45).gain(0.8),
   // Piano, melodía (corcheas): 1–8 frase base, 9–16 la misma idea más arriba
   note("<[e5 ~ g5 ~ a5@2 g5 e5] [d5@4 c5@2 ~ ~] [b4 ~ d5 ~ g5@2 e5 d5] [b4@4 ~ ~ g4 a4] [c5 ~ d5 ~ f5@2 e5 d5] [a4@4 ~ ~ c5 d5] [e5@3 d5 c5@2 b4 c5] [a4@6 ~ ~] [a5 ~ g5 ~ e5@2 c5 d5] [e5@6 ~ ~] [d5 ~ e5 ~ g5@2 b5 a5] [g5@4 ~ e5 d5 ~] [f5 ~ e5 ~ d5@2 c5 a4] [c5@4 ~ d5 e5 ~] [e5@2 g5@2 e5 d5 c5 b4] [a4@6 ~ ~]>").s("steinway")
     .velocity("<0.5 0.45 0.5 0.45 0.52 0.46 0.54 0.44 0.55 0.5 0.56 0.5 0.55 0.5 0.56 0.46>").lpf(4200)
-    .delay(0.18).delaytime(0.6).delayfeedback(0.3).room(0.5).size(4).pan(0.52).gain(0.85),
+    .orbit(2).delay(0.18).delaytime(0.6).delayfeedback(0.3).room(0.5).size(4).pan(0.52).gain(0.85),
 
   // Cello 1 (tenor): sostiene en los compases impares y se mueve en los pares
   note("<[a3] [a3@2 c4 b3] [b3] [b3@2 d4 c4] [a3] [a3@2 f3 g3] [g3] [a3@2 b3 c4]>").s("sawtooth")
     .attack(0.3).decay(0.4).sustain(0.75).release(1).lpf(1100).lpq(1.5).hpf(90).vib(5).vibmod(0.12)
-    .room(0.6).size(5).pan(0.34).gain("<0.07!4 0.09!12>"),
+    .orbit(2).room(0.6).size(4).pan(0.34).gain("<0.07!4 0.09!12>"),
   // Cello 2 (más grave), desde el compás 9: se mueve en los compases impares, cuando el 1.º sostiene
   note("<[e3@2 f3 g3] [e3] [d3@2 e3 g3] [d3] [c3@2 d3 e3] [f3] [e3@2 c3 b2] [e3]>").s("sawtooth")
     .attack(0.35).decay(0.4).sustain(0.75).release(1.1).lpf(850).lpq(1.5).hpf(70).vib(4.6).vibmod(0.14)
-    .room(0.6).size(5).pan(0.66).mask("<0!8 1!8>").gain(0.09),
+    .orbit(2).room(0.6).size(4).pan(0.66).mask("<0!8 1!8>").gain(0.09),
 
   // Bajo pizzicato (desde el compás 5): negras que caminan; pizzicato de violín una octava arriba + seno grave
   s("<[sfx_violin_sting_09 ~ sfx_violin_sting_09 ~] [sfx_violin_sting_09 ~ sfx_violin_sting_09 sfx_violin_sting_09] [sfx_violin_sting_09 ~ sfx_violin_sting_09 ~] [sfx_violin_sting_09 ~ sfx_violin_sting_09 sfx_violin_sting_09] [sfx_violin_sting_09 ~ sfx_violin_sting_09 ~] [sfx_violin_sting_09 ~ sfx_violin_sting_09 sfx_violin_sting_09] [sfx_violin_sting_09 ~ sfx_violin_sting_09 ~] [sfx_violin_sting_09 ~ sfx_violin_sting_09 sfx_violin_sting_09]>")
     .speed("<[0.3969 ~ 0.5946 ~] [0.3969 ~ 0.5 0.5946] [0.3746 ~ 0.5612 ~] [0.3746 ~ 0.4454 0.5612] [0.3337 ~ 0.5 ~] [0.3337 ~ 0.3969 0.5] [0.25 ~ 0.3746 ~] [0.25 ~ 0.2973 0.3746]>")
-    .clip(1).lpf(2200).hpf(90).room(0.25).size(2).pan(0.48).mask("<0!4 1!12>").gain(0.3),
+    .clip(1).lpf(2200).hpf(90).room(0.25).size(3).pan(0.48).mask("<0!4 1!12>").gain(0.3),
   note("<[f2 ~ c3 ~] [f2 ~ a2 c3] [e2 ~ b2 ~] [e2 ~ g2 b2] [d2 ~ a2 ~] [d2 ~ f2 a2] [a1 ~ e2 ~] [a1 ~ c2 e2]>").s("sine")
     .attack(0.005).decay(0.45).sustain(0).lpf(300).mask("<0!4 1!12>").gain(0.38),
 
   // Bombo grande (desde el compás 5): bombo + timbal de suelo en el 1, bombo solo en el «y» del 3
   s("[sfx_acoustic_drum_kit_kick_01 ~ ~ ~ ~ ~ ~ ~ ~ ~ sfx_acoustic_drum_kit_kick_01 ~ ~ ~ ~ ~]")
     .lpf(900).room(0.3).size(3).mask("<0!4 1!12>").gain(0.5),
-  s("[sfx_acoustic_drum_kit_floor_tom_01 ~ ~ ~]").speed(0.9).lpf(500).room(0.4).size(4).mask("<0!4 1!12>").gain(0.28),
+  s("[sfx_acoustic_drum_kit_floor_tom_01 ~ ~ ~]").speed(0.9).lpf(500).room(0.4).size(3).mask("<0!4 1!12>").gain(0.28),
   // Caja suave en el 2 y el 4, apagada y con sala; golpe de aro fantasma desde el compás 9
   s("[~ sfx_acoustic_drum_kit_snare_01 ~ sfx_acoustic_drum_kit_snare_01]").lpf(3200).hpf(150).room(0.4).size(3)
     .mask("<0!4 1!12>").gain(0.2),
   s("[~ ~ ~ ~ ~ ~ ~ sfx_acoustic_drum_kit_snare_cross_stick_01 ~ ~ ~ ~ ~ ~ sfx_acoustic_drum_kit_snare_cross_stick_01 ~]")
-    .lpf(4000).room(0.3).size(2).pan(0.6).mask("<0!8 1!8>").gain(0.09)
+    .lpf(4000).room(0.3).size(3).pan(0.6).mask("<0!8 1!8>").gain(0.09)
 ).cpm(75 / 4)
