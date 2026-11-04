@@ -1,6 +1,6 @@
 # Rosepetal Music
 
-Música ambiental para los vídeos de Rosepetal: minimalista, instrumental, lo-fi, tocada en [Strudel](https://strudel.cc) con [DJ Claude](https://www.npmjs.com/package/dj-claude). Todos los samples son CC0 (SFXMint), así que lo que sale de aquí se puede publicar.
+Música ambiental para los vídeos de Rosepetal: minimalista, instrumental, lo-fi, tocada en [Strudel](https://strudel.cc) con [DJ Claude](https://www.npmjs.com/package/dj-claude). Todos los samples son CC0 (SFXMint y VCSL), así que lo que sale de aquí se puede publicar.
 
 ## Arrancar
 
@@ -30,6 +30,8 @@ Si no lo encuentra, dale el puerto de la pestaña de DJ Claude: `curl -X POST "h
 | Archivo | Qué es |
 |---|---|
 | `01-petalos-bajo-la-lluvia.strudel` | 75 BPM, bucle de 16 compases. Lluvia y crepitar de vinilo, piano troceado, pad de piano eléctrico, arpegio de campanita, bajo que camina y dos flautas con aire Nujabes. Fa maj9 · Mi m7 · Re m9 · La m9. La batería suave entra en el compás 5. |
+| `02-piano-y-cellos.strudel` | 75 BPM, 16 compases. Piano Steinway con la melodía, dos cellos que se contestan, bajo en pizzicato y batería muy suave de bombo grande y caja. Misma armonía que la 01. |
+| `03-ambient-trance.strudel` | 80 BPM, 16 compases, tranquila y alegre. Los instrumentos de la 02 sobre una base de ambient trance: pad supersaw que bombea, arpegio en semicorcheas, bajo pizzicato a contratiempo y bombo a negras. Do maj9 · Sol add9 · La m7 · Fa maj9. |
 
 Cada pieza lleva en sus comentarios la forma, la armonía y la afinación de los samples.
 
@@ -39,6 +41,6 @@ Ojo al escribir piezas: en Strudel las comillas dobles son patrones de mini-nota
 
 - `server.js`: sirve la página, las piezas (`/music/`), los samples (`/samples/`) y el relé de DJ Claude (`/dj`). Viene del proyecto de visuales de DJ Claude (djtest). `ws-lite.js` es el WebSocket mínimo del relé.
 - `public/index.html`: reproductor. Registra los samples, recibe lo que manda DJ Claude y graba la salida.
-- `samples/SFXMint/`: los sonidos, con licencia y huellas en [SOUNDS.md](SOUNDS.md). Cada archivo es un banco `sfx_<nombre>`; los WAV nuevos que pongas en esa carpeta aparecen solos en unos segundos. Otros packs en `samples/` se cargan pero git no los sube.
+- `samples/SFXMint/`: los sonidos de SFXMint; `samples/VCSL/steinway/`: un piano Steinway afinado nota a nota (VCSL, CC0). Licencias y huellas en [SOUNDS.md](SOUNDS.md). Cada archivo es un banco `sfx_<nombre>`; los WAV nuevos que pongas en esa carpeta aparecen solos en unos segundos. Otros packs en `samples/` se cargan pero git no los sube.
 
 La variable `SAMPLES_DIRS` cambia las carpetas de samples (separadas por `;`). Para tocar desde otro equipo de la red local hace falta HTTPS con un certificado en `cert/` (igual que en djtest).

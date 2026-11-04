@@ -1,0 +1,52 @@
+// Rosepetal Music · 03 · Ambient trance (tranquila y alegre)
+// Ambient trance luminoso, 80 BPM, Do mayor. Los instrumentos de «Piano y cellos» sobre una base trance suave:
+// pad supersaw que bombea en cada negra, arpegio en semicorcheas con eco, bajo pizzicato a contratiempo y bombo a negras.
+// Bucle de 16 compases (1 ciclo = 1 compás, 48 s):
+//   1–4 pad, arpegio cerrado, piano y primer cello · 5–8 bombo y bajo a contratiempo · 9–16 caja, charles, segundo cello y la melodía sube.
+// Armonía (2 compases por acorde, I–V–vi–IV): Do maj9 | Sol add9 | La m7 | Fa maj9. Eco de corchea con puntillo: 0,5625 s.
+// Los cellos se reparten el movimiento: el 1.º se mueve en los compases pares y el 2.º en los impares.
+//
+// Instrumentos: piano `steinway` (VCSL, CC0) · cellos sintetizados · pizzicato de violín (SFXMint, La4) + seno grave ·
+// bombo + timbal de suelo, caja (SFXMint). Pizzicato: speed = 2^((nota − 69)/12): Do3 0,2973 · Fa3 0,3969 · Sol3 0,4454 · La3 0,5
+stack(
+  // Lluvia y crepitar de vinilo, muy al fondo (SFXMint)
+  s("sfx_ambience_rain_21").slow(3).hpf(400).lpf(5000).gain(0.07),
+  s("sfx_ambience_fireplace_42").slow(3).late(1.5).hpf(1800).lpf(7000).gain(0.06),
+
+  // Pad supersaw que bombea: el acorde se reataca en cada negra con ataque lento (como un sidechain suave)
+  note("<[e3,g3,b3,d4]!2 [d3,g3,a3,b3]!2 [e3,g3,a3,c4]!2 [f3,a3,c4,e4]!2>").s("supersaw").struct("x*4")
+    .attack(0.2).decay(0.1).sustain(1).release(0.2).lpf("<900!4 1300!4 1700!8>").room(0.6).size(6).gain(0.04),
+  // Arpegio en semicorcheas (triángulo), notas del acorde; el filtro se abre despacio a lo largo del bucle
+  note("<[e4 g4 b4 d5 e5 d5 b4 g4]*2 [e4 g4 b4 d5 e5 d5 b4 g4]*2 [d4 g4 a4 b4 d5 b4 a4 g4]*2 [d4 g4 a4 b4 d5 b4 a4 g4]*2 [e4 a4 c5 e5 g5 e5 c5 a4]*2 [e4 a4 c5 e5 g5 e5 c5 a4]*2 [f4 a4 c5 e5 g5 e5 c5 a4]*2 [f4 a4 c5 e5 g5 e5 c5 a4]*2>")
+    .s("triangle").attack(0.003).decay(0.13).sustain(0).lpf(sine.range(800, 3000).slow(16))
+    .delay(0.4).delaytime(0.5625).delayfeedback(0.45).room(0.5).size(5).pan(sine.range(0.3, 0.7)).gain(0.065),
+
+  // Piano (VCSL Steinway), melodía en corcheas: 1–8 frase base, 9–16 la misma idea más arriba
+  note("<[g4 ~ c5 ~ e5@2 d5 c5] [d5@4 e5@2 ~ ~] [d5 ~ b4 ~ g4@2 a4 b4] [a4@4 ~ ~ g4 a4] [c5 ~ e5 ~ a5@2 g5 e5] [g5@4 ~ ~ e5 g5] [a5@3 g5 f5@2 e5 c5] [d5@6 ~ ~] [e5 ~ g5 ~ c6@2 b5 g5] [a5@4 g5@2 ~ ~] [b5 ~ a5 ~ g5@2 d5 e5] [d5@4 ~ b4 d5 ~] [e5 ~ c5 ~ a4@2 c5 e5] [g5@4 ~ a5 g5 ~] [f5@2 a5@2 g5 f5 e5 d5] [e5@6 ~ ~]>").s("steinway")
+    .velocity("<0.48 0.44 0.48 0.44 0.5 0.46 0.52 0.44 0.52 0.48 0.54 0.48 0.52 0.48 0.54 0.46>").lpf(5000)
+    .delay(0.25).delaytime(0.5625).delayfeedback(0.35).room(0.55).size(5).pan(0.52).gain(0.8),
+
+  // Cello 1 (tenor): sostiene en los compases impares y se mueve en los pares
+  note("<[g3] [g3@2 a3 b3] [b3] [b3@2 c4 b3] [c4] [c4@2 b3 a3] [a3] [a3@2 b3 c4]>").s("sawtooth")
+    .attack(0.3).decay(0.4).sustain(0.75).release(1).lpf(1100).lpq(1.5).hpf(90).vib(5).vibmod(0.12)
+    .room(0.6).size(5).pan(0.34).gain("<0.06!4 0.08!12>"),
+  // Cello 2 (más grave), desde el compás 9: se mueve cuando el 1.º sostiene
+  note("<[c3@2 d3 e3] [e3] [d3@2 b2 d3] [d3] [e3@2 c3 e3] [e3] [f3@2 e3 d3] [c3]>").s("sawtooth")
+    .attack(0.35).decay(0.4).sustain(0.75).release(1.1).lpf(850).lpq(1.5).hpf(70).vib(4.6).vibmod(0.14)
+    .room(0.6).size(5).pan(0.66).mask("<0!8 1!8>").gain(0.08),
+
+  // Bajo trance a contratiempo (desde el compás 5): pizzicato de violín sobre la fundamental + seno grave
+  s("[~ sfx_violin_sting_09]*4").speed("<0.2973!2 0.4454!2 0.5!2 0.3969!2>").clip(1).lpf(2000).hpf(100)
+    .pan(0.48).mask("<0!4 1!12>").gain(0.24),
+  note("<[~ c2]*4 [~ c2]*4 [~ g1]*4 [~ g1]*4 [~ a1]*4 [~ a1]*4 [~ f1]*4 [~ f1]*4>").s("sine")
+    .attack(0.005).decay(0.3).sustain(0).lpf(280).mask("<0!4 1!12>").gain(0.38),
+
+  // Bombo grande a negras, suave (desde el compás 5); el timbal de suelo refuerza el 1
+  s("sfx_acoustic_drum_kit_kick_01*4").lpf(800).room(0.25).size(3).mask("<0!4 1!12>").gain(0.4),
+  s("[sfx_acoustic_drum_kit_floor_tom_01 ~ ~ ~]").speed(0.9).lpf(500).room(0.4).size(4).mask("<0!4 1!12>").gain(0.2),
+  // Caja suave en el 2 y el 4 (desde el compás 9), con sala larga
+  s("[~ sfx_acoustic_drum_kit_snare_01 ~ sfx_acoustic_drum_kit_snare_01]").lpf(3200).hpf(150).room(0.5).size(5)
+    .mask("<0!8 1!8>").gain(0.14),
+  // Charles abierto a contratiempo, casi susurrado (desde el compás 9)
+  s("[~ pink]*4").decay(0.05).sustain(0).hpf(8000).mask("<0!8 1!8>").gain(0.03)
+).cpm(80 / 4)

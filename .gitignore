@@ -2,9 +2,10 @@
 cert/*
 !cert/cert.example.cnf
 
-# Solo los sonidos CC0 de SFXMint; otros packs de samples no se suben
+# Solo los sonidos CC0 (SFXMint y VCSL); otros packs de samples no se suben
 samples/*
 !samples/SFXMint/
+!samples/VCSL/
 
 # Grabaciones
 *.webm

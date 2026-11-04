@@ -64,6 +64,14 @@ function scanSamples() {
       banks[name] = [di + '/' + rel.split(path.sep).map(encodeURIComponent).join('/')];
       continue;
     }
+    // Instrumentos afinados de VCSL: VCSL/<instrumento>/<instrumento>_<nota>.wav → banco <instrumento> con una muestra por nota
+    // (en el nombre, la «s» marca el sostenido: steinway_Fs4.wav = Fa#4). Strudel elige la muestra más cercana y la transpone.
+    const pitched = /(^|[\\/])vcsl[\\/]([^\\/]+)[\\/][^\\/]*_([A-G]s?-?\d)\.\w+$/i.exec(rel);
+    if (pitched) {
+      const bank = pitched[2].toLowerCase(), note = pitched[3].replace('s', '#');
+      (banks[bank] ||= {})[note] = [di + '/' + rel.split(path.sep).map(encodeURIComponent).join('/')];
+      continue;
+    }
     const t = tokens(rel.replace(AUDIO, ''));
     if (t.has('loop') || t.has('loops') || t.has('bpm')) continue;          // solo golpes sueltos, sin loops
     const hit = BANKS.find(([, test]) => test(t));
