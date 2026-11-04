@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rosepetal Music</title>
+<style>
+  :root { --bg: #17110f; --fg: #f3e6df; --dim: #a8958c; --rose: #e8a0a8; --ok: #9fd3a8; --bad: #d9a36b; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: radial-gradient(ellipse at 50% 30%, #2a1c1a, var(--bg) 70%); color: var(--fg);
+    font: 15px/1.5 system-ui, sans-serif; display: flex; align-items: center; justify-content: center; }
+  main { width: min(720px, 92vw); padding: 32px 0; }
+  h1 { font-weight: 300; letter-spacing: 0.12em; margin: 0 0 4px; } h1 b { color: var(--rose); font-weight: 400; }
+  .sub { color: var(--dim); margin: 0 0 24px; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 12px 0; }
+  button, select { background: #2b201d; color: var(--fg); border: 1px solid #4a3833; border-radius: 8px; padding: 8px 14px; font: inherit; cursor: pointer; }
+  button:hover { border-color: var(--rose); } button:disabled { opacity: 0.4; cursor: default; }
+  button.primary { background: var(--rose); color: #2a1416; border: 0; font-weight: 600; padding: 12px 22px; }
+  button.rec { border-color: #b4545c; } button.rec.on { background: #b4545c; }
+  .ok { color: var(--ok); } .bad { color: var(--bad); }
+  pre { background: #0f0b0a; border: 1px solid #33261f; border-radius: 8px; padding: 12px; max-height: 40vh; overflow: auto; font-size: 12px; color: #cdbab0; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<main>
+  <h1>rosepetal <b>music</b></h1>
+  <p class="sub">Música ambiental para los vídeos de Rosepetal, tocada con DJ Claude y Strudel.</p>
+  <div class="row"><button id="go" class="primary">▶ Iniciar audio</button></div>
+  <div class="row">
+    <span id="conn" class="bad">○ audio parado</span>
+    <span id="smp" class="sub" style="margin:0"></span>
+    <button id="rc" disabled>reconectar con DJ Claude</button>
+  </div>
+  <div class="row">
+    <select id="track"></select>
+    <button id="play" disabled>▶ Tocar aquí</button>
+    <button id="stop" disabled>■ Parar</button>
+    <button id="rec" class="rec" disabled>● Grabar</button>
+  </div>
+  <pre id="code">Pulsa «Iniciar audio». Lo que toque DJ Claude (modo navegador) sonará en esta página; también puedes tocar una pieza guardada.</pre>
+</main>
+<script type="module">
+// Toda salida que va a los altavoces se copia también a un MediaStreamDestination, para poder grabarla.
+// Se instala antes de crear Strudel para que su cadena de audio pase por aquí.
+const recTaps = new WeakMap();
+const origConnect = AudioNode.prototype.connect;
+AudioNode.prototype.connect = function (dest, ...rest) {
+  const r = origConnect.call(this, dest, ...rest);
+  if (dest instanceof AudioDestinationNode) {
+    let tap = recTaps.get(dest.context);
+    if (!tap) { tap = dest.context.createMediaStreamDestination(); recTaps.set(dest.context, tap); }
+    origConnect.call(this, tap);
+  }
+  return r;
+};
+
+import { initStrudel, getAudioContext } from 'https://unpkg.com/@strudel/web@1.2.6/dist/index.mjs';
+
+const $ = id => document.getElementById(id);
+let repl = null, ws = null, djUp = false, forceReady = false, banks = new Set();
+
+function setConn(ok, txt) { $('conn').textContent = (ok ? '● ' : '○ ') + txt; $('conn').className = ok ? 'ok' : 'bad'; }
+
+async function loadSamples() {
+  try {
+    const idx = await (await fetch('/samples/index.json', { cache: 'no-store' })).json();
+    const fresh = Object.fromEntries(Object.entries(idx.banks || {}).filter(([k]) => !banks.has(k)));
+    if (Object.keys(fresh).length) {
+      await globalThis.samples(fresh, `${location.origin}/samples/`);
+      Object.keys(fresh).forEach(k => banks.add(k));
+    }
+    $('smp').textContent = `samples: ${banks.size} bancos`;
+  } catch (err) { console.warn('[rosepetal] samples', err); }
+}
+
+async function loadTracks() {
+  const list = await (await fetch('/music/index.json', { cache: 'no-store' })).json();
+  $('track').innerHTML = list.map(f => `<option>${f}</option>`).join('');
+}
+
+async function evaluate(code) {
+  await repl.evaluate(code);
+  $('code').textContent = code;
+}
+
+// DJ Claude llega por el relé del servidor (/dj)
+function connect() {
+  if (ws) { ws.onclose = null; try { ws.close(); } catch {} }
+  ws = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/dj`);
+  ws.onopen = () => { setConn(false, 'buscando a DJ Claude…'); ws.send(JSON.stringify({ type: 'ready', force: forceReady })); forceReady = false; };
+  ws.onmessage = async ev => {
+    let msg; try { msg = JSON.parse(ev.data); } catch { return; }
+    if (msg.type === 'relay') { djUp = !!msg.dj; setConn(djUp, djUp ? 'conectado a DJ Claude' : 'esperando a DJ Claude (modo navegador)…'); return; }
+    if (msg.type === 'evaluate') {
+      try { await evaluate(msg.code); ws.send(JSON.stringify({ type: 'ack', id: msg.id })); }
+      catch (err) { ws.send(JSON.stringify({ type: 'error', id: msg.id, error: err.message })); }
+    } else if (msg.type === 'hush') { (repl.hush || repl.stop)?.call(repl); }
+  };
+  ws.onclose = () => { djUp = false; setConn(false, 'desconectado, reintentando…'); setTimeout(connect, 2000); };
+  ws.onerror = () => ws.close();
+}
+
+$('go').onclick = async () => {
+  $('go').disabled = true;
+  repl = await initStrudel();
+  await loadSamples();
+  await loadTracks();
+  ['rc', 'play', 'stop', 'rec'].forEach(id => $(id).disabled = false);
+  connect();
+  setInterval(loadSamples, 15000);
+};
+$('rc').onclick = () => { forceReady = true; connect(); };
+$('play').onclick = async () => {
+  const code = await (await fetch('/music/' + encodeURIComponent($('track').value), { cache: 'no-store' })).text();
+  try { await evaluate(code); } catch (err) { $('code').textContent = 'Error: ' + err.message; }
+};
+$('stop').onclick = () => (repl.hush || repl.stop)?.call(repl);
+
+// Grabación de lo que suena (WebM/Opus), para montar en vídeo
+let rec = null, chunks = [];
+$('rec').onclick = () => {
+  if (rec) { rec.stop(); return; }
+  const tap = recTaps.get(getAudioContext());
+  if (!tap) { alert('Todavía no ha sonado nada.'); return; }
+  chunks = [];
+  rec = new MediaRecorder(tap.stream, { mimeType: 'audio/webm;codecs=opus', audioBitsPerSecond: 256000 });
+  rec.ondataavailable = e => e.data.size && chunks.push(e.data);
+  rec.onstop = () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(chunks, { type: 'audio/webm' }));
+    a.download = `${($('track').value || 'rosepetal').replace(/\.strudel$/, '')}-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.webm`;
+    a.click();
+    rec = null; $('rec').textContent = '● Grabar'; $('rec').classList.remove('on');
+  };
+  rec.start(1000);
+  $('rec').textContent = '■ Parar grabación'; $('rec').classList.add('on');
+};
+</script>
+</body>
+</html>

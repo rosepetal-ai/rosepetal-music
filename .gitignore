@@ -1,0 +1,14 @@
+# Certificado local para la red local (lleva la clave privada)
+cert/*
+!cert/cert.example.cnf
+
+# Solo los sonidos CC0 de SFXMint; otros packs de samples no se suben
+samples/*
+!samples/SFXMint/
+
+# Grabaciones
+*.webm
+node_modules/
+*.log
+.DS_Store
+Thumbs.db

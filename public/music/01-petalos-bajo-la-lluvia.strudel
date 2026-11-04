@@ -1,0 +1,35 @@
+// Rosepetal Music · 01 · Pétalos bajo la lluvia
+// Ambiental lo-fi, 75 BPM, La menor / Do mayor. Minimalista e instrumental, con un aire Nujabes (flauta, piano, acordes de 7.ª y 9.ª).
+// Bucle de 16 compases (1 ciclo = 1 compás, ~51 s): 1–4 solo lluvia, piano y pad · 5–8 entra la flauta · 9–16 batería suave y melodía completa.
+// Armonía (2 compases por acorde): Fa maj9 | Mi m7 | Re m9 | La m9.
+// El piano es un acorde de Do mayor (SFXMint) transpuesto con speed: Do (1) · Sol (0,7492) · Fa (0,6674); el pad pone las 3.ª, 7.ª y 9.ª.
+// La flauta (SFXMint) es un Do5; speed = 2^(semitonos/12): La4 0,8409 · Si4 0,9439 · Do5 1 · Re5 1,1225 · Mi5 1,2599 · Sol4 0,7492.
+stack(
+  // Lluvia en la ventana (SFXMint, 10 s): una toma cada 3 compases, se solapan ~0,4 s
+  s("sfx_ambience_rain_21").slow(3).hpf(300).lpf(5200).gain(0.16),
+  // Crepitar de chimenea muy filtrado, como polvo de vinilo (SFXMint, 11 s)
+  s("sfx_ambience_fireplace_42").slow(3).late(1.5).hpf(1800).lpf(7000).gain(0.1),
+  // Pad de piano eléctrico (FM suave, vibrato lento de cinta): 3.ª, 7.ª y 9.ª de cada acorde
+  note("<[a3,e4,g4]!2 [g3,d4]!2 [f3,c4,e4]!2 [c4,g4,b4]!2>").s("triangle").fmh(1).fmi(0.6)
+    .attack(0.4).decay(2).sustain(0.5).release(2.5).lpf(1600).vib(0.25).vibmod(0.08)
+    .room(0.5).size(4).gain(0.11),
+  // Bajo redondo: fundamental larga y un pequeño paso a la quinta al final del segundo compás
+  note("<[f2@3 ~] [f2@2 ~ c3] [e2@3 ~] [e2@2 ~ b2] [d2@3 ~] [d2@2 ~ a2] [a1@3 ~] [a1@2 ~ e2]>").s("sine")
+    .attack(0.03).decay(0.8).sustain(0.6).release(0.6).lpf(380).gain(0.32),
+  // Acorde de piano (SFXMint): golpe en el 1 del primer compás de cada acorde y un eco suave a contratiempo en el segundo
+  s("<sfx_piano_major_chord_01 [~ [~ sfx_piano_major_chord_01] ~ ~]>").speed("<1!2 0.7492!2 0.6674!2 1!2>")
+    .gain("<0.42 0.26>").hpf(120).lpf(2600).room(0.45).size(3).pan("<0.45 0.55>"),
+  // Flauta (SFXMint): frase corta en 5–8 y melodía completa en 9–16
+  s("<~!4 [~ ~ fl@2] [fl@4] [~ ~ fl@2] [fl@3 ~] [~ ~ fl@2] [fl@3 fl] [~ fl@3] [fl@4] [~ fl fl@2] [fl@3 ~] [~ ~ fl fl] [fl@3 ~]>".replace(/fl/g, 'sfx_flute_note_01'))
+    .speed("<~!4 [~ ~ 0.8409@2] [1@4] [~ ~ 1.2599@2] [1.1225@3 ~] [~ ~ 1.2599@2] [1.1225@3 1] [~ 0.9439@3] [0.7492@4] [~ 0.8409 1@2] [1.2599@3 ~] [~ ~ 1.1225 1] [0.8409@3 ~]>")
+    .clip(1).attack(0.06).release(0.9).hpf(250).lpf(3400)
+    .delay(0.22).delaytime(0.6).delayfeedback(0.35).room(0.7).size(5).pan(0.42).gain(0.3),
+  // Campanillas al final del bucle, muy lejos
+  s("<~!7 [~ ~ sfx_wind_chimes_settle_01 ~] ~!7 [~ ~ sfx_wind_chimes_settle_01 ~]>").hpf(2500).room(0.8).size(6).pan(0.7).gain(0.07),
+  // Batería lo-fi (9–16): bombo apagado en el 1 y el «y» del 3
+  s("<~!8 [sbd ~ ~ ~ ~ ~ ~ ~ ~ ~ sbd ~ ~ ~ ~ ~]!8>").decay(0.45).lpf(260).gain(0.42),
+  // Caja de escobilla (ruido corto y filtrado) en el 2 y el 4
+  s("<~!8 [~ white ~ white]!8>").decay(0.11).sustain(0).hpf(1100).lpf(4200).room(0.3).size(2).gain(0.09),
+  // Charles a corcheas con swing, casi susurrados
+  s("<~!8 [pink*8]!8>").decay(0.025).sustain(0).hpf(7500).gain("0.045 0.025").swingBy(1/3, 4)
+).cpm(75 / 4)
