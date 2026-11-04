@@ -21,6 +21,7 @@ Descargados el 2026-11-04 con el conector de SFXMint (`https://sfxmint.com/mcp`)
 | `sfx_acoustic_drum_kit_snare_01` | acoustic-drum-kit-snare-01.wav | 1,5 s | — | https://sfxmint.com/sounds/acoustic-drum-kit-snare-01 | `467bf419366117e66d4047161ebcce9dc29616b57b931d1afb1e67f38fc27e33` |
 | `sfx_acoustic_drum_kit_snare_cross_stick_01` | acoustic-drum-kit-snare-cross-stick-01.wav | 2,0 s | — | https://sfxmint.com/sounds/acoustic-drum-kit-snare-cross-stick-01 | `874ca9f42f2d08ef7f91c2dc6eb8f4ce1ef1e5b068f0efead62ca3b6c16ab04e` |
 | `sfx_acoustic_drum_kit_crash_01` | acoustic-drum-kit-crash-01.wav | 6,0 s | — | https://sfxmint.com/sounds/acoustic-drum-kit-crash-01 | `c5876f39c6a2010f4f23bea3a03d2e699f63fb254685ac084076ff7de8d7b946` |
+| `sfx_xylophone_note_03` | xylophone-note-03.wav | 1,1 s | Fa#6 (+20 cents) | https://sfxmint.com/sounds/xylophone-note-03 | `8cd6a793490dce313a5aaa6dd233ba1f85fd9f3b6bc8c2cb8157f2c1b639af6a` |
 
 Para afinar un sample melódico en Strudel: `speed = 2^(semitonos / 12)` desde su nota medida.
 
