@@ -1,7 +1,7 @@
 // Rosepetal Music · 04 · Hacia la luz
 // Canción luminosa y esperanzadora, 90 BPM, Re mayor. Forma ABABCBA (56 compases, ~2 min 30 s; 1 ciclo = 1 compás):
-//   A estrofa    (8): Re | Re | Sol | Sol | Si m | Si m | La | La       — piano a dos manos, un cello legato, pizzicato
-//   B puente     (8): Sol | La | Re | Si m | Sol | La | Re | Re         — gancho del piano; el pizzicato lleva una línea de bajo melódica
+//   A estrofa    (8): Re | Re | Sol | Sol | Si m | Si m | La | La       — piano a dos manos, un cello legato
+//   B puente     (8): Sol | La | Re | Si m | Sol | La | Re | Re         — gancho del piano; el bajo lleva una línea melódica
 //   C estribillo (8): Sol | Re | Mi m | La | Sol | Re | La | Re          — el violín canta el tema, groove completo y platillo
 // Durante toda la pieza, un sinte agudo repite un motivo muy simple de dos compases (La Fa# Mi / La Fa# Re), que encaja en todos los acordes.
 // Crecendo: cada sección suma capas, el filtro del pad se abre a lo largo de toda la canción y el volumen general
@@ -11,10 +11,8 @@
 // Para equipos modestos: ~60 notas por compás como mucho, una sola reverb y un solo eco (canal 2: pad, arpegio, piano,
 // cello, violín y sinte agudo); bajo y batería van secos en el canal 1.
 // Instrumentos: piano `steinway` (VCSL, CC0) · cello y violín sintetizados (sierra filtrada con vibrato; ni SFXMint ni
-// VCSL tienen cuerda frotada) · pizzicato de violín (SFXMint, La4) + seno grave · bombo, caja y platillo (SFXMint) ·
+// VCSL tienen cuerda frotada) · bajo de onda triangular · bombo, caja y platillo (SFXMint) ·
 // charles, pandereta y subidas con ruido.
-// Pizzicato: speed = 2^((nota − 69)/12): La2 0,25 · Si2 0,2806 · Do#3 0,315 · Re3 0,3337 · Mi3 0,3746 · Fa#3 0,4204 ·
-// Sol3 0,4454 · La3 0,5 · Si3 0,5612 · Do#4 0,63 · Re4 0,6674 · Fa#4 0,8409
 
 // La forma: cada capa recibe sus versiones de A (tres, de menos a más), B, C y, si hace falta, un B distinto para el que va antes del estribillo
 const form = (a1, b, a2, c, a3, bAntesDeC = b) => arrange([8, a1], [8, b], [8, a2], [8, bAntesDeC], [8, c], [8, b], [8, a3]);
@@ -44,14 +42,7 @@ const arpC = note("<[d4 g4 b4 f#5 g5 f#5 b4 g4] [d4 f#4 a4 e5 f#5 e5 a4 f#4] [e4
 // ── Cello legato y limpio en las estrofas ──
 const celA = note("<[f#3] [a3@2 g3 f#3] [g3] [b3@2 a3 g3] [f#3] [d3@2 e3 f#3] [e3] [c#3@2 d3 e3]>");
 
-// ── Bajo ──
-const pizzA = s("<[x ~ x ~] [x ~ x x] [x ~ x ~] [x ~ x x] [x ~ x ~] [x ~ x x] [x ~ x ~] [x ~ x x]>")
-  .speed("<[0.3337 ~ 0.5 ~] [0.3337 ~ 0.4204 0.5] [0.4454 ~ 0.6674 ~] [0.4454 ~ 0.5612 0.6674] [0.2806 ~ 0.4204 ~] [0.2806 ~ 0.3337 0.4204] [0.25 ~ 0.3746 ~] [0.25 ~ 0.315 0.3746]>");
-// B: línea de bajo melódica (Sol La Si… / Re Fa# Re Do# Si…), una octava sobre el seno grave
-const pizzB = s("<[x@2 x@2 x@3 x] [x@6 x x] [x@2 x@2 x@2 x x] [x@4 ~ ~ x x] [x@2 x@2 x@3 x] [x@4 x@2 x x] [x@6 x x] [x@6 ~ ~]>")
-  .speed("<[0.4454@2 0.5@2 0.5612@3 0.4454] [0.5@6 0.3746 0.4204] [0.6674@2 0.8409@2 0.6674@2 0.63 0.5612] [0.5612@4 ~ ~ 0.4204 0.5] [0.4454@2 0.5@2 0.5612@3 0.6674] [0.5@4 0.4454@2 0.4204 0.3746] [0.3337@6 0.3746 0.4204] [0.3337@6 ~ ~]>");
-// C: fundamental a contratiempo, con empuje
-const pizzC = s("[~ x]*4").speed("<0.4454 0.3337 0.3746 0.5 0.4454 0.3337 0.5 0.3337>");
+// ── Bajo (en B, una línea melódica: Sol La Si… / Re Fa# Re Do# Si…) ──
 const subA = note("<[d2 ~ a2 ~] [d2 ~ f#2 a2] [g1 ~ d2 ~] [g1 ~ b1 d2] [b1 ~ f#2 ~] [b1 ~ d2 f#2] [a1 ~ e2 ~] [a1 ~ c#2 e2]>");
 const subB = note("<[g1@2 a1@2 b1@3 g1] [a1@6 e1 f#1] [d2@2 f#2@2 d2@2 c#2 b1] [b1@4 ~ ~ f#1 a1] [g1@2 a1@2 b1@3 d2] [a1@4 g1@2 f#1 e1] [d2@6 e1 f#1] [d2@6 ~ ~]>");
 const subC = note("<g1 d2 e2 a1 g1 d2 a1 d2>");
@@ -106,12 +97,10 @@ stack(
     .s("sawtooth").attack(0.3).decay(0.4).sustain(0.75).release(1).lpf(1100).hpf(90).vib(5).vibmod(0.12)
     .orbit(2).room(0.55).size(4).pan(0.36),
 
-  // Bajo: pizzicato (SFXMint) en toda la canción y seno grave debajo
-  form(pizzA.gain(0.18), pizzB.gain(0.3), pizzA.gain(0.25), pizzC.gain(0.3), pizzA.gain(0.28))
-    .s("sfx_violin_sting_09").clip(1).lpf(2000).hpf(100).pan(0.48),
-  form(subA.decay(0.3).sustain(0).gain(0.3), subB.decay(0.6).sustain(0.5).gain(0.3), subA.decay(0.3).sustain(0).gain(0.36),
-       subC.decay(1).sustain(0.8).gain(0.36), subA.decay(0.3).sustain(0).gain(0.4))
-    .s("sine").attack(0.005).release(0.2).lpf(280),
+  // Bajo: onda triangular filtrada (redonda, pero con armónicos para que se oiga también en altavoces pequeños)
+  form(subA.decay(0.35).sustain(0.2).gain(0.34), subB.decay(0.6).sustain(0.5).gain(0.36), subA.decay(0.35).sustain(0.2).gain(0.38),
+       subC.decay(1).sustain(0.8).gain(0.4), subA.decay(0.35).sustain(0.2).gain(0.42))
+    .s("triangle").attack(0.005).release(0.2).lpf(550),
 
   // Batería downtempo al frente: bombo con pegada y swing ligero (filtrado en el primer A)
   form(kickIntro, kickFull, kickFull, kickFull, kickFull).s("sfx_acoustic_drum_kit_kick_01").swingBy(1/5, 8).gain(1.15),
