@@ -1,13 +1,15 @@
 // Rosepetal Music · 03 · Ambient trance (tranquila y alegre)
 // Ambient trance luminoso con batería lofi, 90 BPM, Do mayor. Los instrumentos de «Piano y cellos» sobre una base trance suave
-// (pad de sierra que bombea en cada negra, arpegio en semicorcheas con eco, bajo pizzicato a contratiempo) y un groove lofi:
-// bombo y caja con swing, caja un pelo retrasada, golpes de aro fantasma y charles en semicorcheas con acentos.
+// (pad que bombea, arpegio con eco, bajo pizzicato a contratiempo) y un groove lofi: bombo y caja con swing, caja un pelo
+// retrasada, golpes de aro fantasma y charles a corcheas con swing.
 // Bucle de 16 compases (1 ciclo = 1 compás, ~43 s):
-//   1–4 pad, arpegio cerrado, piano y primer cello · 5–8 entran la batería lofi y el bajo · 9–16 variación del groove, segundo cello y la melodía sube.
-// Reverb y eco por canal (orbit), cada uno con un solo tamaño para que no se recalculen: 1 batería y bajo (sala 3) ·
-//   2 pad, piano y cellos (sala 5, eco 0,35) · 3 arpegio (sala 5, eco 0,45). Cambiar el tamaño dentro de un canal provoca cortes.
+//   1–4 pad, arpegio, piano y primer cello · 5–8 entran la batería lofi y el bajo · 9–16 variación del groove, segundo cello y la melodía sube.
 // Armonía (2 compases por acorde, I–V–vi–IV): Do maj9 | Sol add9 | La m7 | Fa maj9. Eco de corchea con puntillo: 0,5 s.
 // Los cellos se reparten el movimiento: el 1.º se mueve en los compases pares y el 2.º en los impares.
+//
+// Pensada para equipos modestos (probada en una Surface Go 3): ~50 notas por compás, UNA sola reverb y UN solo eco,
+// los dos en el canal 2 (pad, arpegio, piano y cellos); bajo, batería y ambiente van secos en el canal 1.
+// En un mismo canal, reverb y eco deben tener siempre los mismos ajustes: si cambian, Strudel los recalcula y el audio se corta.
 //
 // Instrumentos: piano `steinway` (VCSL, CC0) · cellos sintetizados · pizzicato de violín (SFXMint, La4) + seno grave ·
 // bombo, timbal de suelo, caja y golpe de aro (SFXMint). Pizzicato: speed = 2^((nota − 69)/12): Do3 0,2973 · Fa3 0,3969 · Sol3 0,4454 · La3 0,5
@@ -16,46 +18,47 @@ stack(
   s("sfx_ambience_rain_21").slow(3).hpf(400).lpf(5000).gain(0.07),
   s("sfx_ambience_fireplace_42").slow(3).late(1.5).hpf(1800).lpf(7000).gain(0.06),
 
-  // Pad de sierra que bombea: el acorde se reataca en cada negra con ataque lento (como un sidechain suave)
-  note("<[e3,g3,b3,d4]!2 [d3,g3,a3,b3]!2 [e3,g3,a3,c4]!2 [f3,a3,c4,e4]!2>").s("sawtooth").struct("x*4")
-    .attack(0.2).decay(0.1).sustain(1).release(0.2).lpf("<800!4 1100!4 1400!8>").orbit(2).room(0.5).size(5).gain(0.05),
-  // Arpegio en semicorcheas (triángulo), notas del acorde; el filtro se abre despacio a lo largo del bucle
-  note("<[e4 g4 b4 d5 e5 d5 b4 g4]*2 [e4 g4 b4 d5 e5 d5 b4 g4]*2 [d4 g4 a4 b4 d5 b4 a4 g4]*2 [d4 g4 a4 b4 d5 b4 a4 g4]*2 [e4 a4 c5 e5 g5 e5 c5 a4]*2 [e4 a4 c5 e5 g5 e5 c5 a4]*2 [f4 a4 c5 e5 g5 e5 c5 a4]*2 [f4 a4 c5 e5 g5 e5 c5 a4]*2>")
-    .s("triangle").attack(0.003).decay(0.13).sustain(0).lpf(sine.range(800, 3000).slow(16))
-    .orbit(3).delay(0.4).delaytime(0.5).delayfeedback(0.45).room(0.5).size(5).pan(sine.range(0.3, 0.7)).gain(0.065),
+  // Pad de sierra que bombea dos veces por compás (ataque lento, como un sidechain suave)
+  note("<[e3,g3,b3,d4]!2 [d3,g3,a3,b3]!2 [e3,g3,a3,c4]!2 [f3,a3,c4,e4]!2>").s("sawtooth").struct("x x")
+    .attack(0.3).decay(0.2).sustain(0.9).release(0.4).lpf("<800!4 1100!4 1400!8>")
+    .orbit(2).room(0.5).size(4).gain(0.055),
+  // Arpegio a corcheas (triángulo), notas del acorde; el eco rellena las semicorcheas
+  note("<[e4 g4 b4 d5 e5 d5 b4 g4]!2 [d4 g4 a4 b4 d5 b4 a4 g4]!2 [e4 a4 c5 e5 g5 e5 c5 a4]!2 [f4 a4 c5 e5 g5 e5 c5 a4]!2>")
+    .s("triangle").attack(0.003).decay(0.16).sustain(0).lpf(sine.range(900, 3000).slow(16))
+    .orbit(2).delay(0.4).delaytime(0.5).delayfeedback(0.35).room(0.45).size(4).pan(sine.range(0.3, 0.7)).gain(0.075),
 
   // Piano (VCSL Steinway), melodía en corcheas: 1–8 frase base, 9–16 la misma idea más arriba
   note("<[g4 ~ c5 ~ e5@2 d5 c5] [d5@4 e5@2 ~ ~] [d5 ~ b4 ~ g4@2 a4 b4] [a4@4 ~ ~ g4 a4] [c5 ~ e5 ~ a5@2 g5 e5] [g5@4 ~ ~ e5 g5] [a5@3 g5 f5@2 e5 c5] [d5@6 ~ ~] [e5 ~ g5 ~ c6@2 b5 g5] [a5@4 g5@2 ~ ~] [b5 ~ a5 ~ g5@2 d5 e5] [d5@4 ~ b4 d5 ~] [e5 ~ c5 ~ a4@2 c5 e5] [g5@4 ~ a5 g5 ~] [f5@2 a5@2 g5 f5 e5 d5] [e5@6 ~ ~]>").s("steinway")
     .velocity("<0.48 0.44 0.48 0.44 0.5 0.46 0.52 0.44 0.52 0.48 0.54 0.48 0.52 0.48 0.54 0.46>").lpf(5000)
-    .orbit(2).delay(0.25).delaytime(0.5).delayfeedback(0.35).room(0.55).size(5).pan(0.52).gain(0.8),
+    .orbit(2).delay(0.25).delaytime(0.5).delayfeedback(0.35).room(0.5).size(4).pan(0.52).gain(0.8),
 
   // Cello 1 (tenor): sostiene en los compases impares y se mueve en los pares
   note("<[g3] [g3@2 a3 b3] [b3] [b3@2 c4 b3] [c4] [c4@2 b3 a3] [a3] [a3@2 b3 c4]>").s("sawtooth")
-    .attack(0.3).decay(0.4).sustain(0.75).release(1).lpf(1100).lpq(1.5).hpf(90).vib(5).vibmod(0.12)
-    .orbit(2).room(0.6).size(5).pan(0.34).gain("<0.06!4 0.08!12>"),
+    .attack(0.3).decay(0.4).sustain(0.75).release(1).lpf(1100).hpf(90).vib(5).vibmod(0.12)
+    .orbit(2).room(0.55).size(4).pan(0.34).gain("<0.06!4 0.08!12>"),
   // Cello 2 (más grave), desde el compás 9: se mueve cuando el 1.º sostiene
   note("<[c3@2 d3 e3] [e3] [d3@2 b2 d3] [d3] [e3@2 c3 e3] [e3] [f3@2 e3 d3] [c3]>").s("sawtooth")
-    .attack(0.35).decay(0.4).sustain(0.75).release(1.1).lpf(850).lpq(1.5).hpf(70).vib(4.6).vibmod(0.14)
-    .orbit(2).room(0.6).size(5).pan(0.66).mask("<0!8 1!8>").gain(0.08),
+    .attack(0.35).decay(0.4).sustain(0.75).release(1.1).lpf(850).hpf(70).vib(4.6).vibmod(0.14)
+    .orbit(2).room(0.55).size(4).pan(0.66).mask("<0!8 1!8>").gain(0.08),
 
-  // Bajo trance a contratiempo (desde el compás 5): pizzicato de violín sobre la fundamental + seno grave
+  // Bajo a contratiempo (desde el compás 5): pizzicato de violín sobre la fundamental + seno grave
   s("[~ sfx_violin_sting_09]*4").speed("<0.2973!2 0.4454!2 0.5!2 0.3969!2>").clip(1).lpf(2000).hpf(100)
     .pan(0.48).mask("<0!4 1!12>").gain(0.24),
   note("<[~ c2]*4 [~ c2]*4 [~ g1]*4 [~ g1]*4 [~ a1]*4 [~ a1]*4 [~ f1]*4 [~ f1]*4>").s("sine")
     .attack(0.005).decay(0.3).sustain(0).lpf(280).mask("<0!4 1!12>").gain(0.38),
 
-  // Batería lofi (desde el compás 5). Bombo: 1, «a» del 2 e «y» del 3; en el 2.º compás de cada par, 1 y doble en el 3
-  s("<[k ~ ~ ~ ~ ~ ~ k ~ ~ k ~ ~ ~ ~ ~] [k ~ ~ ~ ~ ~ ~ ~ ~ k k ~ ~ ~ ~ k]>")
-    .s("sfx_acoustic_drum_kit_kick_01").lpf(700).room(0.2).size(3).mask("<0!4 1!12>").gain(0.5),
+  // Batería lofi, seca (desde el compás 5). Bombo: 1, «a» del 2 e «y» del 3; en el 2.º compás de cada par, 1, «y» y «a» del 3 y «a» del 4
+  s("<[x ~ ~ ~ ~ ~ ~ x ~ ~ x ~ ~ ~ ~ ~] [x ~ ~ ~ ~ ~ ~ ~ ~ x x ~ ~ ~ ~ x]>").s("sfx_acoustic_drum_kit_kick_01")
+    .lpf(700).mask("<0!4 1!12>").gain(0.55),
   // Timbal de suelo bajo el primer bombo de cada compás, para darle cuerpo
-  s("[sfx_acoustic_drum_kit_floor_tom_01 ~ ~ ~]").speed(0.85).lpf(450).room(0.3).size(3).mask("<0!4 1!12>").gain(0.16),
+  s("[sfx_acoustic_drum_kit_floor_tom_01 ~ ~ ~]").speed(0.85).lpf(450).mask("<0!4 1!12>").gain(0.16),
   // Caja en el 2 y el 4, apagada y un pelo tarde (sensación «laid back»)
   s("[~ sfx_acoustic_drum_kit_snare_01 ~ sfx_acoustic_drum_kit_snare_01]").late(0.012).lpf(2800).hpf(160)
-    .room(0.3).size(3).mask("<0!4 1!12>").gain(0.24),
+    .mask("<0!4 1!12>").gain(0.26),
   // Golpes de aro fantasma (desde el compás 9)
   s("<[~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~ ~ ~ ~ x] [~ ~ ~ x ~ ~ x ~ ~ ~ ~ ~ ~ x ~ ~]>").s("sfx_acoustic_drum_kit_snare_cross_stick_01")
-    .lpf(3500).room(0.3).size(3).pan(0.6).mask("<0!8 1!8>").gain(0.08),
-  // Charles en semicorcheas con swing y acentos, cerrados y polvorientos
-  s("white*16").decay(0.03).sustain(0).hpf(6500).lpf(11000).swingBy(1/3, 8)
-    .gain("<0!4 [0.04 0.015 0.028 0.015]!4 [0.05 0.018 0.034 0.02]!8>").pan(0.56).mask("<0!4 1!12>")
+    .lpf(3500).pan(0.6).mask("<0!8 1!8>").gain(0.08),
+  // Charles a corcheas con swing y acentos, cerrados y polvorientos
+  s("white*8").decay(0.035).sustain(0).hpf(6500).lpf(11000).swingBy(1/3, 4)
+    .gain("<[0.04 0.02]!4 [0.05 0.025]!12>").pan(0.56).mask("<0!4 1!12>")
 ).cpm(90 / 4)

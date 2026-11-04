@@ -107,6 +107,33 @@ function handle(req, res) {
       });
       return;
     }
+    // Tocar una pieza en todas las páginas abiertas sin pasar por DJ Claude (solo desde este equipo):
+    //   POST /play?track=03-ambient-trance.strudel   · o POST /play con el código Strudel en el cuerpo
+    //   POST /hush                                    · para parar
+    if ((url.pathname === '/play' || url.pathname === '/hush') && req.method === 'POST') {
+      if (!isLoopback(req.socket.remoteAddress)) { res.writeHead(403); return res.end(); }
+      if (url.pathname === '/hush') {
+        relay.cache = null; toPages(JSON.stringify({ type: 'hush' }));
+        res.writeHead(200); return res.end(`parado en ${relay.pages.size} página(s)\n`);
+      }
+      let body = '';
+      req.on('data', c => { body += c; if (body.length > 1024 * 1024) req.destroy(); });
+      req.on('end', () => {
+        const track = url.searchParams.get('track');
+        let code = body;
+        if (track) {
+          const file = path.normalize(path.join(PUBLIC, 'music', track));
+          if (!file.startsWith(path.join(PUBLIC, 'music') + path.sep)) { res.writeHead(403); return res.end(); }
+          try { code = fs.readFileSync(file, 'utf8'); } catch { res.writeHead(404); return res.end('pieza no encontrada\n'); }
+        }
+        if (!code.trim()) { res.writeHead(400); return res.end('sin código\n'); }
+        const msg = { type: 'evaluate', code, id: `local-${++relay.seq}` };
+        relay.cache = msg;                                       // las páginas que se conecten después también la reciben
+        toPages(JSON.stringify(msg));
+        res.writeHead(200); res.end(`enviado a ${relay.pages.size} página(s)\n`);
+      });
+      return;
+    }
     // Puerto de DJ Claude a mano (solo desde este equipo), por si la búsqueda automática no lo ve
     if (url.pathname === '/dj-port' && req.method === 'POST') {
       if (!isLoopback(req.socket.remoteAddress)) { res.writeHead(403); return res.end(); }
@@ -223,7 +250,31 @@ async function findDj() {
   if (DJ_PORT && DJ_PORT !== relay.port && await probeDj(DJ_PORT)) return DJ_PORT;  // el de la línea de órdenes
   const ports = await loopbackPorts();
   const hits = await Promise.all(ports.map(async p => (await probeDj(p) ? p : 0)));
-  return hits.find(Boolean) || 0;
+  return hits.find(Boolean) || await scanForDj();
+}
+// Plan B: en algunos equipos netstat no ve el puerto de DJ Claude (sale una lista recortada). Entonces se prueban todos
+// los puertos de 127.0.0.1 en tandas pequeñas (con muchas conexiones a la vez Windows las rechaza) y se pregunta a los
+// abiertos si son DJ Claude. Tarda menos de un minuto y no se repite más de una vez cada 2 minutos.
+let lastScan = 0;
+function portOpen(port) {
+  return new Promise(resolve => {
+    const s = net.connect({ host: '127.0.0.1', port });
+    s.setTimeout(250);
+    s.on('connect', () => { s.destroy(); resolve(true); });
+    s.on('timeout', () => { s.destroy(); resolve(false); });
+    s.on('error', () => resolve(false));
+  });
+}
+async function scanForDj() {
+  if (Date.now() - lastScan < 120000) return 0;
+  lastScan = Date.now();
+  for (let start = 1024; start <= 65535; start += 150) {
+    const batch = [];
+    for (let p = start; p < Math.min(start + 150, 65536); p++) if (p !== PORT) batch.push(p);
+    const open = (await Promise.all(batch.map(async p => (await portOpen(p) ? p : 0)))).filter(Boolean);
+    for (const p of open) if (await probeDj(p)) { console.log(`relé: DJ Claude encontrado probando puertos (${p})`); return p; }
+  }
+  return 0;
 }
 function onUpstream(text) {
   let msg; try { msg = JSON.parse(text); } catch { return; }
@@ -281,8 +332,10 @@ function onPage(conn, text) {
   if (msg.type === 'ready') {
     conn.send(relayStatus());
     if (msg.force) { reregister(); return; }                     // botón «reconectar» de la página
-    if (relay.open && relay.cache) conn.send(JSON.stringify({ type: 'evaluate', code: relay.cache.code, id: `relay-${++relay.seq}` }));
-    else connectUpstream();
+    // Lo último que sonó (de DJ Claude o de POST /play) también le llega a la página que acaba de conectarse
+    if (relay.cache && (relay.open || String(relay.cache.id).startsWith('local-')))
+      conn.send(JSON.stringify({ type: 'evaluate', code: relay.cache.code, id: `relay-${++relay.seq}` }));
+    if (!relay.open) connectUpstream();
     return;
   }
   // Una sola respuesta por cambio: la primera página que confirma (o falla) habla por todas

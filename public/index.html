@@ -40,6 +40,13 @@
   <pre id="code">Pulsa «Iniciar audio». Lo que toque DJ Claude (modo navegador) sonará en esta página; también puedes tocar una pieza guardada.</pre>
 </main>
 <script type="module">
+// Búfer de audio grande: el navegador prepara el sonido con más margen. En equipos modestos (p. ej. una Surface Go)
+// evita los cortes; a cambio, lo que se toca suena ~0,1 s más tarde, que aquí no importa.
+const NativeAudioContext = window.AudioContext;
+window.AudioContext = class extends NativeAudioContext {
+  constructor(opts = {}) { super({ ...opts, latencyHint: 'playback' }); }
+};
+
 // Toda salida que va a los altavoces se copia también a un MediaStreamDestination, para poder grabarla.
 // Se instala antes de crear Strudel para que su cadena de audio pase por aquí.
 const recTaps = new WeakMap();

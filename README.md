@@ -23,7 +23,24 @@ En la página:
 2. Pasa DJ Claude a modo navegador (`switch_audio browser`). El servidor encuentra su puerto solo (con `netstat`, solo en Windows) y la página pasa a «● conectado a DJ Claude».
 3. Lo que toque DJ Claude (`play_strudel`) suena en esta página, con los samples de `samples/` ya cargados.
 
-Si no lo encuentra, dale el puerto de la pestaña de DJ Claude: `curl -X POST "http://127.0.0.1:8091/dj-port?port=PUERTO"`.
+Para encontrar su puerto usa `netstat` (solo Windows) y, si no lo ve, prueba los puertos locales uno a uno (menos de un minuto). También se le puede dar a mano: `curl -X POST "http://127.0.0.1:8091/dj-port?port=PUERTO"`.
+
+Sin DJ Claude, desde este equipo:
+
+```bash
+curl -X POST "http://127.0.0.1:8091/play?track=03-ambient-trance.strudel"
+```
+
+manda una pieza a todas las páginas abiertas, y `curl -X POST http://127.0.0.1:8091/hush` las para.
+
+## Equipos modestos
+
+Strudel genera el audio en el navegador, en tiempo real. En una Surface Go 3 (Core i3-10100Y, 5 W) las piezas con muchas capas se cortaban. Lo que lo evita:
+
+- La página pide al navegador un búfer de audio grande (`latencyHint: 'playback'`).
+- Una sola reverb y un solo eco por pieza, con los mismos ajustes en todas las capas que los usan: si cambian dentro de un canal (`orbit`), Strudel los recalcula sin parar.
+- Unas 50 notas por compás como mucho: arpegios y charles a corcheas en vez de semicorcheas.
+- La pestaña, a la vista: en segundo plano el navegador frena la página y se saltan notas.
 
 ## Piezas
 
