@@ -60,16 +60,16 @@ Para afinar un sample melódico en Strudel: `speed = 2^(semitonos / 12)` desde s
 
 - **Origen:** VCSL, carpeta `Idiophones/Struck Idiophones/Xylophone/Soft Mallets`, dinámica `pp`, micro lejano (`far`). Descargado el 2026-11-04.
 - **Licencia:** CC0 1.0.
-- **Procesado:** de 24 a 16 bits, recortados a 3 s con un fundido de 0,6 s. El xilófono suena una octava por encima de lo que dicen los nombres originales (`Xylo_Soft_C5` suena Do6, medido), así que se renombraron con la nota que suena: `xylophone_C6.wav` es Do6.
-- **Ubicación:** [samples/VCSL/xylophone/](samples/VCSL/xylophone/): 5 notas (Sol5, Do6, Sol6, Do7, Sol7). El servidor las sirve como el banco afinado `xylophone`.
+- **Procesado:** de 24 a 16 bits, recortados a 3 s con un fundido de 0,6 s y normalizados a −3 dBFS de pico (venían a entre −20 y −25 dBFS, demasiado bajos para oírse en la mezcla). El xilófono suena una octava por encima de lo que dicen los nombres originales (`Xylo_Soft_C5` suena Do6, medido), así que se renombraron con la nota que suena: `xilofono_C6.wav` es Do6.
+- **Ubicación:** [samples/VCSL/xilofono/](samples/VCSL/xilofono/): 5 notas (Sol5, Do6, Sol6, Do7, Sol7). El servidor las sirve como el banco afinado `xilofono`.
 
 | Archivo | SHA-256 (procesado) |
 |---|---|
-| xylophone_C6.wav | `3725223c3d0e20e86a5a3a3d4aa9981817c24a874eacd52e0ecb116bbf3a2db4` |
-| xylophone_C7.wav | `37f27e948e3dd0f7199fe0343422be09bced11e4509056787892d300ffd4cd73` |
-| xylophone_G5.wav | `0f4679816e2a4576c9311e068651ec77fcf2a765358d8bf2fea9570ea304121c` |
-| xylophone_G6.wav | `058fcea3b7ee97753f074309e10588992d3a87eade415111d0b98bd11dec25a9` |
-| xylophone_G7.wav | `3cc355a2ed0a54981e417ede83299c6d0454d7cbced0b12e1a8ed61e27d461b8` |
+| xilofono_C6.wav | `066696908cab5f511417397f0a67f88d2075ec5df6bf270a285e51fcb0744ad7` |
+| xilofono_C7.wav | `fbb8b92b1a6561c101d04608cb4be6a6b547f459efb081722cd00c496716da82` |
+| xilofono_G5.wav | `2208e455f0ae9e49c595ff85563f82cf1acc419671dfecc8958b5c8fa9f88311` |
+| xilofono_G6.wav | `027775f9ec7403f14a1a8737d99bae3cf8a30c6594332f00b4dd4b6afef56e68` |
+| xilofono_G7.wav | `c842ec01084914812a2289a5b5337309bccb451e2d2d3d27add65233383cabe4` |
 
 ## Missing
 

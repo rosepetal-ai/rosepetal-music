@@ -1,11 +1,64 @@
-// Rosepetal Music · 05 · Lofi (en desarrollo)
-// Lofi hip-hop, 94 BPM, Sol mayor. Bucle de 8 compases (1 ciclo = 1 compás, ~20 s). Batería al frente.
-// Armonía (2 compases por acorde, ii–V–I–IV): La m9 | Re9 | Sol maj9 | Do maj9.
-// Piano Steinway a dos manos, bajito, apagado y con «bamboleo» de cinta (cada nota sale un pelo desafinada): la izquierda
-// con el bajo en el 1 y acordes graves con swing, la derecha con una melodía de dos o tres notas; un xilófono (SFXMint) repite
-// por detrás, en agudo y bajito, corcheas que dibujan cada acorde (VCSL, mazas suaves); bajo redondo que camina hacia el acorde siguiente; batería boom-bap
-// polvorienta; mucho vinilo: crepitar, siseo de aguja y la chimenea de SFXMint como polvo.
-// Ligera: ~35 notas por compás, una sola reverb (canal 2: piano y pad), bajo y batería secos.
+// Rosepetal Music · 05 · Lofi
+// Lofi hip-hop, 100 BPM, Sol mayor. Forma AABCABCA (64 compases, ~2 min 34 s; 1 ciclo = 1 compás):
+//   A  groove      (8): La m9 | Re9 | Sol maj9 | Do maj9 (2 compases cada uno) — piano a dos manos, xilófono, batería boom-bap.
+//                       En el primer A la batería entra a mitad, como intro; el último A cierra: la batería se va a mitad.
+//   B  subida      (8): Mi m7 | Do maj7 | Sol | Re (2 compases cada uno)    — se une un cello en crescendo; el piano deja sitio;
+//                       subida de ruido en el último compás
+//   C  estribillo  (8): Do | Re | Si m | Mi m | Do | Re | Sol | Sol (uno por compás) — clímax: violines con el tema, cello,
+//                       batería con más golpes (bombo, caja con golpes fantasma, charles en semicorcheas), platillo al entrar
+// Siempre: vinilo (crepitar, siseo de aguja y la chimenea de SFXMint como polvo) y bamboleo de cinta en el piano.
+//
+// Ligera: ~55 notas por compás como mucho; una sola reverb (canal 2: pad, piano, xilófono, cello y violines), el resto seco.
+// Instrumentos: piano `steinway` y xilófono `xilofono` (VCSL, CC0) · cello y violines sintetizados (sierra filtrada con
+// vibrato) · bajo de onda triangular · bombo, caja, aro y platillo (SFXMint) · charles con ruido.
+
+// La forma: cada capa recibe sus versiones del primer A, A, B, C y el último A
+const form = (aIntro, a, b, c, aFin) =>
+  arrange([8, aIntro], [8, a], [8, b], [8, c], [8, a], [8, b], [8, c], [8, aFin]);
+const intro = "<0!4 1!4>";                  // máscara: entra a mitad de la sección
+const outro = "<1!4 0!4>";                  // máscara: se va a mitad de la sección
+const once = s("<x ~!7>");                  // primer compás de la sección
+const lastBar = s("<~!7 x>");               // último compás de la sección
+
+// ── Pad (triángulo) ──
+const padA = note("<[a3,c4,e4,g4] [d3,c4,f#4,a4] [g3,b3,d4,f#4] [c4,e4,g4,b4]>").slow(2);
+const padB = note("<[e3,g3,b3,d4] [c3,g3,b3,e4] [d3,g3,b3,d4] [d3,f#3,a3,e4]>").slow(2);
+const padC = note("<[c3,g3,b3,e4] [d3,f#3,a3,e4] [b2,f#3,a3,d4] [e3,g3,b3,d4] [c3,g3,b3,e4] [d3,f#3,a3,e4] [g3,b3,d4,f#4]!2>");
+
+// ── Piano, mano izquierda: bajo + quinta en el 1 y acordes graves a contratiempo ──
+const lhA = note("<[[a2,e3] ~ ~ [g3,c4,e4] ~ ~ ~ ~] [[a2,e3] ~ ~ ~ [g3,b3,e4] ~ ~ [g3,c4,e4]] [[d3,a3] ~ ~ [f#3,c4,e4] ~ ~ ~ ~] [[d3,a3] ~ ~ ~ [f#3,b3,e4] ~ ~ [f#3,c4,e4]] [[g2,d3] ~ ~ [f#3,b3,d4] ~ ~ ~ ~] [[g2,d3] ~ ~ ~ [f#3,a3,d4] ~ ~ [f#3,b3,d4]] [[c3,g3] ~ ~ [e3,b3,d4] ~ ~ ~ ~] [[c3,g3] ~ ~ ~ [e3,g3,b3] ~ ~ [e3,b3,d4]]>");
+const lhB = note("<[[e2,b2] ~ ~ [g3,b3,d4] ~ ~ ~ ~] [[e2,b2] ~ ~ ~ [g3,b3,e4] ~ ~ [g3,b3,d4]] [[c3,g3] ~ ~ [e3,b3,e4] ~ ~ ~ ~] [[c3,g3] ~ ~ ~ [e3,g3,b3] ~ ~ [e3,b3,e4]] [[g2,d3] ~ ~ [f#3,b3,d4] ~ ~ ~ ~] [[g2,d3] ~ ~ ~ [g3,b3,d4] ~ ~ [f#3,b3,d4]] [[d3,a3] ~ ~ [f#3,c4,e4] ~ ~ ~ ~] [[d3,a3] ~ ~ ~ [f#3,a3,d4] ~ ~ [f#3,c4,e4]]>");
+const lhC = note("<[[c3,g3] ~ ~ [e3,b3,e4] ~ ~ [e3,g3,b3] ~] [[d3,a3] ~ ~ [f#3,a3,e4] ~ ~ [f#3,a3,d4] ~] [[b2,f#3] ~ ~ [d3,a3,d4] ~ ~ [d3,f#3,a3] ~] [[e2,b2] ~ ~ [g3,b3,d4] ~ ~ [g3,b3,e4] ~] [[c3,g3] ~ ~ [e3,b3,e4] ~ ~ [e3,g3,b3] ~] [[d3,a3] ~ ~ [f#3,a3,e4] ~ ~ [f#3,a3,d4] ~] [[g2,d3] ~ ~ [f#3,b3,d4] ~ ~ [f#3,a3,d4] ~] [[g2,d3] ~ ~ [g3,b3,d4] ~ ~ [f#3,b3,d4] ~]>");
+
+// ── Piano, mano derecha: dos o tres notas y silencio (calla en B y C) ──
+const melA = note("<[~ ~ b4 ~ a4 ~ g4 ~] [e4@4 ~ ~ ~ ~] [~ ~ a4 ~ f#4 ~ e4 ~] [d4@4 ~ ~ ~ ~] [~ ~ f#4 ~ a4 ~ b4 ~] [d5@4 ~ ~ ~ ~] [~ ~ e5 ~ d5 ~ b4 ~] [g4@4 ~ ~ ~ ~]>");
+
+// ── Xilófono: corcheas que dibujan cada acorde ──
+const xyloA = note("<[e5 ~ g5 b5 ~ g5 e5 ~] [d5 ~ e5 g5 ~ e5 d5 ~] [f#5 ~ a5 c6 ~ a5 f#5 ~] [e5 ~ f#5 a5 ~ f#5 e5 ~] [d5 ~ f#5 a5 ~ f#5 d5 ~] [b4 ~ d5 f#5 ~ d5 b4 ~] [e5 ~ g5 b5 ~ g5 e5 ~] [d5 ~ e5 g5 ~ b5 a5 ~]>");
+const xyloB = note("<[e5 ~ g5 b5 ~ g5 e5 ~] [d5 ~ e5 g5 ~ e5 d5 ~] [g5 ~ b5 e6 ~ b5 g5 ~] [e5 ~ g5 b5 ~ g5 e5 ~] [d5 ~ g5 b5 ~ g5 d5 ~] [b4 ~ d5 g5 ~ d5 b4 ~] [f#5 ~ a5 d6 ~ a5 f#5 ~] [e5 ~ f#5 a5 ~ f#5 e5 ~]>");
+const xyloC = note("<[e5 ~ g5 b5 ~ g5 e5 ~] [f#5 ~ a5 d6 ~ a5 f#5 ~] [d5 ~ f#5 b5 ~ f#5 d5 ~] [e5 ~ g5 b5 ~ g5 e5 ~] [g5 ~ b5 e6 ~ b5 g5 ~] [f#5 ~ a5 d6 ~ a5 f#5 ~] [d5 ~ g5 b5 ~ g5 d5 ~] [b4 ~ d5 g5 ~ b5 d6 ~]>");
+
+// ── Bajo (triángulo filtrado), camina hacia el acorde siguiente ──
+const bassA = note("<[a1@5 ~ e2 ~] [a1@3 ~ c2@2 d2@2] [d2@5 ~ a1 ~] [d2@3 ~ c2@2 a1@2] [g1@5 ~ d2 ~] [g1@3 ~ b1@2 c2@2] [c2@5 ~ g1 ~] [c2@3 ~ e2@2 b1@2]>");
+const bassB = note("<[e2@5 ~ b1 ~] [e2@3 ~ d2@2 c2@2] [c2@5 ~ g1 ~] [c2@3 ~ a1@2 b1@2] [g1@5 ~ d2 ~] [g1@3 ~ a1@2 b1@2] [d2@5 ~ a1 ~] [d2@3 ~ a1@2 b1@2]>");
+const bassC = note("<[c2@3 ~ c2 ~ g1 ~] [d2@3 ~ d2 ~ a1 ~] [b1@3 ~ b1 ~ f#1 ~] [e2@3 ~ e2 ~ b1 ~] [c2@3 ~ c2 ~ g1 ~] [d2@3 ~ d2 ~ a1 ~] [g1@3 ~ g1 ~ d2 ~] [g1@3 ~ a1@2 b1@2]>");
+
+// ── Cello: en B, notas largas que suben, en crescendo; en C, por debajo de los violines ──
+const celB = note("<e3 g3 g3 b3 b3 d4 a3 f#3>");
+const celC = note("<e3 f#3 f#3 g3 e3 f#3 g3 b3>");
+
+// ── Violines del estribillo: el tema, fuerte; y su doble una octava por debajo ──
+const vio = note("<[g5@3 e5 g5@2 a5@2] [a5@3 b5 a5@2 f#5@2] [f#5@4 d5@2 f#5@2] [g5@4 b5@2 e5@2] [g5@3 e5 g5@2 c6@2] [b5@3 a5 f#5@2 a5@2] [g5@2 a5@2 b5@4] [d6@6 ~ ~]>");
+const vioLow = note("<[g4@3 e4 g4@2 a4@2] [a4@3 b4 a4@2 f#4@2] [f#4@4 d4@2 f#4@2] [g4@4 b4@2 e4@2] [g4@3 e4 g4@2 c5@2] [b4@3 a4 f#4@2 a4@2] [g4@2 a4@2 b4@4] [d5@6 ~ ~]>");
+
+// ── Batería ──
+const kickA = s("<[x ~ ~ ~ ~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~] [x ~ ~ x ~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~]>");
+const kickC = s("<[x ~ ~ x ~ ~ x ~ ~ ~ x ~ ~ ~ ~ ~] [x ~ ~ x ~ ~ ~ ~ ~ x x ~ ~ ~ x ~]>");
+const snare = s("[~ x ~ x]");
+const ghosts = s("<[~ ~ ~ ~ ~ ~ ~ x ~ x ~ ~ ~ ~ ~ ~] [~ ~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~ x ~ x]>");
+const rimA = s("<[~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~] [~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ x]>");
+const hats8 = s("white*8");
+const hats16 = s("white*16");
 
 stack(
   // Vinilo: crepitar continuo (sintetizado), siseo de aguja (ruido rosa filtrado) y la chimenea de SFXMint como polvo
@@ -13,33 +66,58 @@ stack(
   s("pink").attack(0.05).sustain(1).release(0.05).hpf(4000).lpf(9000).gain(0.018),
   s("sfx_ambience_fireplace_42").slow(3).hpf(1800).lpf(7500).gain(0.1),
 
-  // Pad cálido muy bajito (triángulo), un acorde cada dos compases
-  note("<[a3,c4,e4,g4] [d3,c4,f#4,a4] [g3,b3,d4,f#4] [c4,e4,g4,b4]>").slow(2).s("triangle")
-    .attack(0.6).release(1.5).lpf(1200).orbit(2).room(0.5).size(3).gain(0.06),
+  // Pad cálido: bajito en A, crece durante B, abierto en el estribillo
+  form(padA.lpf(1200).gain(0.06), padA.lpf(1200).gain(0.06), padB.lpf(1400).gain("<0.06 0.065 0.07 0.075 0.08 0.085 0.09 0.095>"),
+       padC.lpf(2000).gain(0.09), padA.lpf(1200).gain(0.06))
+    .s("triangle").attack(0.5).release(1.2).orbit(2).room(0.5).size(3),
 
-  // Piano, mano izquierda: bajo + quinta en el 1 y acordes graves a contratiempo, con swing
-  note("<[[a2,e3] ~ ~ [g3,c4,e4] ~ ~ ~ ~] [[a2,e3] ~ ~ ~ [g3,b3,e4] ~ ~ [g3,c4,e4]] [[d3,a3] ~ ~ [f#3,c4,e4] ~ ~ ~ ~] [[d3,a3] ~ ~ ~ [f#3,b3,e4] ~ ~ [f#3,c4,e4]] [[g2,d3] ~ ~ [f#3,b3,d4] ~ ~ ~ ~] [[g2,d3] ~ ~ ~ [f#3,a3,d4] ~ ~ [f#3,b3,d4]] [[c3,g3] ~ ~ [e3,b3,d4] ~ ~ ~ ~] [[c3,g3] ~ ~ ~ [e3,g3,b3] ~ ~ [e3,b3,d4]]>")
+  // Piano (Steinway) a dos manos, bajito, apagado y con bamboleo de cinta
+  form(lhA, lhA, lhB, lhC, lhA)
     .swingBy(1/3, 4).s("steinway").velocity(0.3).speed(perlin.range(0.994, 1.006))
     .lpf(1700).orbit(2).room(0.45).size(3).pan(0.45).gain(0.3),
-  // Piano, mano derecha: la melodía, dos o tres notas y silencio
-  note("<[~ ~ b4 ~ a4 ~ g4 ~] [e4@4 ~ ~ ~ ~] [~ ~ a4 ~ f#4 ~ e4 ~] [d4@4 ~ ~ ~ ~] [~ ~ f#4 ~ a4 ~ b4 ~] [d5@4 ~ ~ ~ ~] [~ ~ e5 ~ d5 ~ b4 ~] [g4@4 ~ ~ ~ ~]>")
+  form(melA, melA, silence, silence, melA)
     .swingBy(1/3, 4).s("steinway").velocity(0.34).speed(perlin.range(0.994, 1.006))
     .lpf(2500).orbit(2).room(0.5).size(3).pan(0.55).gain(0.3),
 
-  // Xilófono (VCSL, mazas suaves, micro lejano) muy por detrás: corcheas con swing que dibujan cada acorde
-  note("<[e5 ~ g5 b5 ~ g5 e5 ~] [d5 ~ e5 g5 ~ e5 d5 ~] [f#5 ~ a5 c6 ~ a5 f#5 ~] [e5 ~ f#5 a5 ~ f#5 e5 ~] [d5 ~ f#5 a5 ~ f#5 d5 ~] [b4 ~ d5 f#5 ~ d5 b4 ~] [e5 ~ g5 b5 ~ g5 e5 ~] [d5 ~ e5 g5 ~ b5 a5 ~]>")
-    .swingBy(1/3, 4).s("xylophone").lpf(7000).orbit(2).room(0.55).size(3).pan(0.7).gain(0.13),
+  // Xilófono (VCSL, mazas suaves) por detrás
+  form(xyloA, xyloA, xyloB, xyloC, xyloA)
+    .swingBy(1/3, 4).s("xilofono").lpf(7000).orbit(2).room(0.55).size(3).pan(0.7).gain(0.12),
 
-  // Bajo redondo (triángulo filtrado)
-  note("<[a1@5 ~ e2 ~] [a1@3 ~ c2@2 d2@2] [d2@5 ~ a1 ~] [d2@3 ~ c2@2 a1@2] [g1@5 ~ d2 ~] [g1@3 ~ b1@2 c2@2] [c2@5 ~ g1 ~] [c2@3 ~ e2@2 b1@2]>")
+  // Bajo
+  form(bassA, bassA, bassB, bassC, bassA)
     .swingBy(1/3, 4).s("triangle").attack(0.01).decay(0.5).sustain(0.5).release(0.2).lpf(500).gain(0.42),
 
-  // Batería boom-bap con swing (SFXMint): bombo, caja apagada y un pelo tarde, golpe de aro de vez en cuando
-  s("<[x ~ ~ ~ ~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~] [x ~ ~ x ~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~]>").s("sfx_acoustic_drum_kit_kick_01")
-    .swingBy(1/3, 8).lpf(700).gain(1.25),
-  s("[~ x ~ x]").s("sfx_acoustic_drum_kit_snare_01").late(0.02).lpf(2600).hpf(180).gain(0.85),
-  s("<[~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~] [~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ x]>").s("sfx_acoustic_drum_kit_snare_cross_stick_01")
-    .swingBy(1/3, 8).lpf(3000).gain(0.2),
-  // Charles a corcheas con swing, apagados
-  s("white*8").swingBy(1/3, 4).decay(0.03).sustain(0).hpf(6000).lpf(8500).gain("[0.085 0.04]*4").pan(0.56)
-).cpm(94 / 4)
+  // Cello: crescendo en B; en el estribillo, sostén bajo los violines
+  form(silence, silence, celB.gain("<0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1>"), celC.gain(0.085), silence)
+    .s("sawtooth").attack(0.4).decay(0.4).sustain(0.8).release(1.2).lpf(1100).hpf(90).vib(5).vibmod(0.12)
+    .orbit(2).room(0.55).size(3).pan(0.36),
+
+  // Violines del estribillo (clímax): el tema y su doble una octava por debajo
+  form(silence, silence, silence, vio, silence)
+    .s("sawtooth").attack(0.1).decay(0.2).sustain(0.85).release(0.5).hpf(350).lpf(4000).vib(5.5).vibmod(0.15)
+    .orbit(2).room(0.55).size(3).pan(0.52).gain(0.1),
+  form(silence, silence, silence, vioLow, silence)
+    .s("sawtooth").attack(0.12).decay(0.2).sustain(0.8).release(0.6).hpf(200).lpf(2600).vib(5).vibmod(0.12)
+    .orbit(2).room(0.55).size(3).pan(0.44).gain(0.055),
+
+  // Batería boom-bap con swing (SFXMint), seca. Entra a mitad del primer A y se va a mitad del último;
+  // en el estribillo, más golpes de bombo, golpes fantasma de caja y charles en semicorcheas
+  form(kickA.mask(intro), kickA, kickA, kickC, kickA.mask(outro))
+    .s("sfx_acoustic_drum_kit_kick_01").swingBy(1/3, 8).lpf(750).gain(1.25),
+  form(snare.mask(intro).gain(0.85), snare.gain(0.85), snare.gain(0.85), snare.gain(0.95), snare.mask(outro).gain(0.85))
+    .s("sfx_acoustic_drum_kit_snare_01").late(0.02).lpf(2800).hpf(180),
+  form(silence, silence, silence, ghosts, silence)
+    .s("sfx_acoustic_drum_kit_snare_01").swingBy(1/3, 8).lpf(2600).hpf(200).gain(0.24),
+  form(rimA.mask(intro), rimA, rimA, silence, rimA.mask(outro))
+    .s("sfx_acoustic_drum_kit_snare_cross_stick_01").swingBy(1/3, 8).lpf(3000).gain(0.2),
+  form(hats8.gain("[0.06 0.028]*4"), hats8.gain("[0.085 0.04]*4"), hats8.gain("[0.09 0.042]*4"),
+       hats16.gain("[0.1 0.032 0.065 0.036]*4"), hats8.gain("[0.085 0.04]*4").mask(outro))
+    .swingBy(1/3, 4).decay(0.03).sustain(0).hpf(6000).lpf(8500).pan(0.56),
+  // Charles abierto cada dos compases en el estribillo
+  form(silence, silence, silence, s("<~ [~ ~ ~ ~ ~ ~ ~ white]>"), silence)
+    .decay(0.25).sustain(0).hpf(5500).pan(0.58).gain(0.075),
+  // Platillo al entrar el estribillo (SFXMint) y subida de ruido justo antes
+  form(silence, silence, silence, once, silence).s("sfx_acoustic_drum_kit_crash_01").lpf(8000).hpf(300).pan(0.42).gain(0.24),
+  form(silence, silence, lastBar, silence, silence)
+    .s("white").attack(2.2).decay(0.1).sustain(1).release(0.05).hpf(2500).lpf(8000).gain(0.06)
+).cpm(100 / 4)
