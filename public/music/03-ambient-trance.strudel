@@ -1,7 +1,7 @@
 // Rosepetal Music · 03 · Ambient trance (tranquila y alegre)
 // Ambient trance luminoso con batería lofi, 90 BPM, Do mayor. Los instrumentos de «Piano y cellos» sobre una base trance suave
 // (pad que bombea, arpegio con eco, bajo pizzicato a contratiempo) y un groove lofi: bombo y caja con swing, caja un pelo
-// retrasada, golpes de aro fantasma y charles a corcheas con swing.
+// claramente retrasada, golpes de aro y charles a corcheas con swing marcado.
 // Bucle de 16 compases (1 ciclo = 1 compás, ~43 s):
 //   1–4 pad, arpegio, piano y primer cello · 5–8 entran la batería lofi y el bajo · 9–16 variación del groove, segundo cello y la melodía sube.
 // Armonía (2 compases por acorde, I–V–vi–IV): Do maj9 | Sol add9 | La m7 | Fa maj9. Eco de corchea con puntillo: 0,5 s.
@@ -47,18 +47,19 @@ stack(
   note("<[~ c2]*4 [~ c2]*4 [~ g1]*4 [~ g1]*4 [~ a1]*4 [~ a1]*4 [~ f1]*4 [~ f1]*4>").s("sine")
     .attack(0.005).decay(0.3).sustain(0).lpf(280).mask("<0!4 1!12>").gain(0.38),
 
-  // Batería lofi, seca (desde el compás 5). Bombo: 1, «a» del 2 e «y» del 3; en el 2.º compás de cada par, 1, «y» y «a» del 3 y «a» del 4
+  // Batería lofi hip-hop, seca y con swing (las semicorcheas pares llegan tarde). Charles y aro desde el compás 1; bombo y caja desde el 5.
+  // Bombo redondo: 1, «a» del 2 e «y» del 3; en el 2.º compás de cada par, 1, «y» y «a» del 3 y «a» del 4
   s("<[x ~ ~ ~ ~ ~ ~ x ~ ~ x ~ ~ ~ ~ ~] [x ~ ~ ~ ~ ~ ~ ~ ~ x x ~ ~ ~ ~ x]>").s("sfx_acoustic_drum_kit_kick_01")
-    .lpf(700).mask("<0!4 1!12>").gain(0.55),
+    .swingBy(1/3, 8).lpf(600).mask("<0!4 1!12>").gain(0.75),
   // Timbal de suelo bajo el primer bombo de cada compás, para darle cuerpo
-  s("[sfx_acoustic_drum_kit_floor_tom_01 ~ ~ ~]").speed(0.85).lpf(450).mask("<0!4 1!12>").gain(0.16),
-  // Caja en el 2 y el 4, apagada y un pelo tarde (sensación «laid back»)
-  s("[~ sfx_acoustic_drum_kit_snare_01 ~ sfx_acoustic_drum_kit_snare_01]").late(0.012).lpf(2800).hpf(160)
-    .mask("<0!4 1!12>").gain(0.26),
-  // Golpes de aro fantasma (desde el compás 9)
-  s("<[~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~ ~ ~ ~ x] [~ ~ ~ x ~ ~ x ~ ~ ~ ~ ~ ~ x ~ ~]>").s("sfx_acoustic_drum_kit_snare_cross_stick_01")
-    .lpf(3500).pan(0.6).mask("<0!8 1!8>").gain(0.08),
-  // Charles a corcheas con swing y acentos, cerrados y polvorientos
-  s("white*8").decay(0.035).sustain(0).hpf(6500).lpf(11000).swingBy(1/3, 4)
-    .gain("<[0.04 0.02]!4 [0.05 0.025]!12>").pan(0.56).mask("<0!4 1!12>")
+  s("[sfx_acoustic_drum_kit_floor_tom_01 ~ ~ ~]").speed(0.85).lpf(450).mask("<0!4 1!12>").gain(0.2),
+  // Caja en el 2 y el 4, polvorienta (filtrada) y claramente tarde: el «arrastre» típico del lofi
+  s("[~ sfx_acoustic_drum_kit_snare_01 ~ sfx_acoustic_drum_kit_snare_01]").late(0.025).lpf(2300).hpf(180)
+    .mask("<0!4 1!12>").gain(0.42),
+  // Golpes de aro: suaves en la intro (1–4), con más dibujo después
+  s("<[~ ~ ~ ~ x ~ ~ ~ ~ ~ ~ ~ x ~ ~ ~]!4 [~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~ ~ ~ ~ x] [~ ~ ~ x ~ ~ x ~ ~ ~ ~ ~ ~ x ~ ~] [~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~ ~ ~ ~ x] [~ ~ ~ x ~ ~ x ~ ~ ~ ~ ~ ~ x ~ ~] [~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~ ~ ~ ~ x] [~ ~ ~ x ~ ~ x ~ ~ ~ ~ ~ ~ x ~ ~] [~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~ ~ ~ ~ x] [~ ~ ~ x ~ ~ x ~ ~ ~ ~ ~ ~ x ~ ~] [~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~ ~ ~ ~ x] [~ ~ ~ x ~ ~ x ~ ~ ~ ~ ~ ~ x ~ ~] [~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~ ~ ~ ~ x] [~ ~ ~ x ~ ~ x ~ ~ ~ ~ ~ ~ x ~ ~]>").s("sfx_acoustic_drum_kit_snare_cross_stick_01")
+    .swingBy(1/3, 8).lpf(3200).pan(0.6).gain("<0.09!4 0.11!12>"),
+  // Charles a corcheas con swing marcado y acentos, cerrados y polvorientos
+  s("white*8").decay(0.04).sustain(0).hpf(6000).lpf(9500).swingBy(0.4, 4)
+    .gain("<[0.045 0.02]!4 [0.07 0.032]!12>").pan(0.56)
 ).cpm(90 / 4)
