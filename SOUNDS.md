@@ -59,5 +59,6 @@ Para afinar un sample melódico en Strudel: `speed = 2^(semitonos / 12)` desde s
 ## Missing
 
 - **Nota suelta de piano:** SFXMint solo tiene acordes; se usa el Steinway de VCSL. Para generarla en SFXMint Studio: https://sfxmint.com/s/e7e5493175
-- **Nota de cello:** ni SFXMint ni VCSL la tienen; en las piezas 02, 03 y 04 los cellos son sintetizados (diente de sierra filtrado con vibrato) y hacen de sustitutos. Para generarla en SFXMint Studio: https://sfxmint.com/s/627945ff78
+- **Nota de cello:** ni SFXMint ni VCSL la tienen; en las piezas 02, 03 y 04 los cellos son sintetizados (diente de sierra filtrado con vibrato) y hacen de sustitutos.
+- **Nota de violín sostenida:** SFXMint solo tiene golpes cortos de violín; en la 04 el violín del estribillo es sintetizado. Para generarla en SFXMint Studio: https://sfxmint.com/s/7495da6924 Para generarla en SFXMint Studio: https://sfxmint.com/s/627945ff78
 - **Pizzicato de contrabajo:** se usa como sustituto el pizzicato de violín (`violin-sting-09`) transpuesto hacia abajo, con un seno grave debajo.

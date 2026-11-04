@@ -49,7 +49,7 @@ Strudel genera el audio en el navegador, en tiempo real. En una Surface Go 3 (Co
 | `01-petalos-bajo-la-lluvia.strudel` | 75 BPM, bucle de 16 compases. Lluvia y crepitar de vinilo, piano troceado, pad de piano eléctrico, arpegio de campanita, bajo que camina y dos flautas con aire Nujabes. Fa maj9 · Mi m7 · Re m9 · La m9. La batería suave entra en el compás 5. |
 | `02-piano-y-cellos.strudel` | 75 BPM, 16 compases. Piano Steinway con la melodía, dos cellos que se contestan, bajo en pizzicato y batería muy suave de bombo grande y caja. Misma armonía que la 01. |
 | `03-ambient-trance.strudel` | 90 BPM, 16 compases, tranquila y alegre. Los instrumentos de la 02 sobre una base de ambient trance (pad que bombea, arpegio en semicorcheas, bajo pizzicato a contratiempo) con batería lofi con swing. Do maj9 · Sol add9 · La m7 · Fa maj9. |
-| `04-hacia-la-luz.strudel` | 90 BPM, Re mayor, luminosa y esperanzadora. Canción con forma ABABCBA (56 compases, ~2 min 30 s): estrofa, estribillo con gancho de piano y puente que sube. Cellos con un punto de distorsión que hacen de bajo en los estribillos, batería downtempo al frente y un crecendo que va de la primera estrofa al último A. |
+| `04-hacia-la-luz.strudel` | 90 BPM, Re mayor, luminosa y esperanzadora. Forma ABABCBA (56 compases, ~2 min 30 s): estrofa, puente y estribillo con violín. Batería downtempo al frente, piano a dos manos por detrás, pizzicato con línea de bajo melódica, un sinte agudo que repite un motivo simple toda la pieza y un crecendo de principio a fin. |
 
 Cada pieza lleva en sus comentarios la forma, la armonía y la afinación de los samples.
 
