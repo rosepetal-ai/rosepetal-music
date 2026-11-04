@@ -71,6 +71,28 @@ Para afinar un sample melódico en Strudel: `speed = 2^(semitonos / 12)` desde s
 | xilofono_G6.wav | `027775f9ec7403f14a1a8737d99bae3cf8a30c6594332f00b4dd4b6afef56e68` |
 | xilofono_G7.wav | `c842ec01084914812a2289a5b5337309bccb451e2d2d3d27add65233383cabe4` |
 
+## VCSL · CC0 · salterio de arco (los «violines»)
+
+- **Origen:** VCSL, carpeta `Chordophones/Zithers/Psaltery, Bowed and Plucked/LongBow` (notas largas con arco). Descargado el 2026-11-04.
+- **Licencia:** CC0 1.0.
+- **Procesado:** de 24 a 16 bits, recortados a 4 s con un fundido de 0,6 s y normalizados a −3 dBFS de pico. Suena una octava por encima de lo que dicen los nombres originales (`BowedPsaltery_C5` suena Do6, medido), así que se renombraron con la nota que suena.
+- **Uso:** sustituye a los violines sintetizados (ni SFXMint ni VCSL tienen violín). Con `.clip(1)` cada nota dura lo que la nota del patrón.
+- **Ubicación:** [samples/VCSL/psalterio/](samples/VCSL/psalterio/): 11 notas, de La#4 a Fa#6. El servidor las sirve como el banco afinado `psalterio`.
+
+| Archivo | SHA-256 (procesado) |
+|---|---|
+| psalterio_As4.wav | `2f91547c0ffa084c13f8f43a6b53b00798d57544842fb1e9bcdc3fca2fe41ceb` |
+| psalterio_As5.wav | `bf8c81b528c6466bb9fcd8f6590021a99d2f38b46aac1c7e48dca3d64441520c` |
+| psalterio_C5.wav | `933b91efa05f5f3284716d92a7223357313944f7e2f3c73d8765e8cb5742a5bd` |
+| psalterio_C6.wav | `edf6d7b5851dddb0c983e0475b11a2ff4a959e51c7c30841b713d3e1746b983b` |
+| psalterio_D5.wav | `36d2051daa8982718d394c008056f965be7bf2e1a2625682716bcf1b6ec18258` |
+| psalterio_D6.wav | `5626d58cc9d7077985f92df1153d6f46622886c2dc408aaffba27565049e36ad` |
+| psalterio_E5.wav | `4eb2a1e0b967a6612f63ebfec9e626c2f72d336ac3a410f498a7c0ed04c73c08` |
+| psalterio_E6.wav | `ced1bb9a6899a1b00339214016de61df246f10bdd0d72bc3b4bec8e46587d51b` |
+| psalterio_Fs5.wav | `8dc85c8081dd74cb5f01e9b8bb70f2f1cf5781345ac55b61a5049526bb9ec69e` |
+| psalterio_Fs6.wav | `e7fa5167f487c28aa9e8bf80c812d6992c98acfbf79859566f63d47f002148e4` |
+| psalterio_Gs5.wav | `2c38b2aefa479fbc5e6bc8e2193c7dbf87afcd7604eab101174854f559756520` |
+
 ## Missing
 
 - **Nota suelta de piano:** SFXMint solo tiene acordes; se usa el Steinway de VCSL. Para generarla en SFXMint Studio: https://sfxmint.com/s/e7e5493175

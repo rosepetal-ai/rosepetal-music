@@ -9,8 +9,8 @@
 // Siempre: vinilo (crepitar, siseo de aguja y la chimenea de SFXMint como polvo) y bamboleo de cinta en el piano.
 //
 // Ligera: ~55 notas por compás como mucho; una sola reverb (canal 2: pad, piano, xilófono, cello y violines), el resto seco.
-// Instrumentos: piano `steinway` y xilófono `xilofono` (VCSL, CC0) · cello y violines sintetizados (sierra filtrada con
-// vibrato) · bajo de onda triangular · bombo, caja, aro y platillo (SFXMint) · charles con ruido.
+// Instrumentos: piano `steinway`, xilófono `xilofono` y salterio de arco `psalterio` (los «violines») (VCSL, CC0) ·
+// cello sintetizado (sierra filtrada con vibrato) · bajo de onda triangular · bombo, caja, aro y platillo (SFXMint) · charles con ruido.
 
 // La forma: cada capa recibe sus versiones del primer A, A, B, C y el último A
 const form = (aIntro, a, b, c, aFin) =>
@@ -92,13 +92,13 @@ stack(
     .s("sawtooth").attack(0.4).decay(0.4).sustain(0.8).release(1.2).lpf(1100).hpf(90).vib(5).vibmod(0.12)
     .orbit(2).room(0.55).size(3).pan(0.36),
 
-  // Violines del estribillo (clímax): el tema y su doble una octava por debajo
+  // «Violines» del estribillo (clímax): salterio de arco (VCSL, cuerda frotada real), el tema y su doble una octava por debajo
   form(silence, silence, silence, vio, silence)
-    .s("sawtooth").attack(0.1).decay(0.2).sustain(0.85).release(0.5).hpf(350).lpf(4000).vib(5.5).vibmod(0.15)
-    .orbit(2).room(0.55).size(3).pan(0.52).gain(0.1),
+    .s("psalterio").clip(1).attack(0.04).release(0.35).hpf(250).lpf(7000)
+    .orbit(2).room(0.55).size(3).pan(0.54).gain(0.42),
   form(silence, silence, silence, vioLow, silence)
-    .s("sawtooth").attack(0.12).decay(0.2).sustain(0.8).release(0.6).hpf(200).lpf(2600).vib(5).vibmod(0.12)
-    .orbit(2).room(0.55).size(3).pan(0.44).gain(0.055),
+    .s("psalterio").clip(1).attack(0.06).release(0.4).hpf(180).lpf(5000)
+    .orbit(2).room(0.55).size(3).pan(0.42).gain(0.24),
 
   // Batería boom-bap con swing (SFXMint), seca. Entra a mitad del primer A y se va a mitad del último;
   // en el estribillo, más golpes de bombo, golpes fantasma de caja y charles en semicorcheas

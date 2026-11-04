@@ -50,7 +50,7 @@ Strudel genera el audio en el navegador, en tiempo real. En una Surface Go 3 (Co
 | `02-piano-y-cellos.strudel` | 75 BPM, 16 compases. Piano Steinway con la melodía, dos cellos que se contestan, bajo en pizzicato y batería muy suave de bombo grande y caja. Misma armonía que la 01. |
 | `03-ambient-trance.strudel` | 90 BPM, 16 compases, tranquila y alegre. Los instrumentos de la 02 sobre una base de ambient trance (pad que bombea, arpegio en semicorcheas, bajo pizzicato a contratiempo) con batería lofi con swing. Do maj9 · Sol add9 · La m7 · Fa maj9. |
 | `04-hacia-la-luz.strudel` | 90 BPM, Re mayor, luminosa y esperanzadora. Forma ABABCBA (56 compases, ~2 min 30 s): estrofa, puente y estribillo con violín. Batería downtempo al frente, piano a dos manos por detrás, bajo triangular con línea melódica, un sinte agudo que repite un motivo simple toda la pieza y un crecendo de principio a fin. |
-| `05-lofi.strudel` | Lofi hip-hop a 100 BPM en Sol mayor, forma AABCABCA (64 compases, ~2 min 34 s). A: groove con piano a dos manos, xilófono y batería boom-bap (entra a mitad del primer A y se va a mitad del último). B: subida con un cello en crescendo. C: estribillo con violines, más batería y platillo. Mucho vinilo. |
+| `05-lofi.strudel` | Lofi hip-hop a 100 BPM en Sol mayor, forma AABCABCA (64 compases, ~2 min 34 s). A: groove con piano a dos manos, xilófono y batería boom-bap (entra a mitad del primer A y se va a mitad del último). B: subida con un cello en crescendo. C: estribillo con violines (salterio de arco real), más batería y platillo. Mucho vinilo. |
 
 Cada pieza lleva en sus comentarios la forma, la armonía y la afinación de los samples.
 
@@ -60,6 +60,6 @@ Ojo al escribir piezas: en Strudel las comillas dobles son patrones de mini-nota
 
 - `server.js`: sirve la página, las piezas (`/music/`), los samples (`/samples/`) y el relé de DJ Claude (`/dj`). Viene del proyecto de visuales de DJ Claude (djtest). `ws-lite.js` es el WebSocket mínimo del relé.
 - `public/index.html`: reproductor. Registra los samples, recibe lo que manda DJ Claude y graba la salida.
-- `samples/SFXMint/`: los sonidos de SFXMint; `samples/VCSL/`: un piano Steinway y un xilófono afinados nota a nota (VCSL, CC0). Licencias y huellas en [SOUNDS.md](SOUNDS.md). Cada archivo es un banco `sfx_<nombre>`; los WAV nuevos que pongas en esa carpeta aparecen solos en unos segundos. Otros packs en `samples/` se cargan pero git no los sube.
+- `samples/SFXMint/`: los sonidos de SFXMint; `samples/VCSL/`: piano Steinway, xilófono y salterio de arco afinados nota a nota (VCSL, CC0). Licencias y huellas en [SOUNDS.md](SOUNDS.md). Cada archivo es un banco `sfx_<nombre>`; los WAV nuevos que pongas en esa carpeta aparecen solos en unos segundos. Otros packs en `samples/` se cargan pero git no los sube.
 
 La variable `SAMPLES_DIRS` cambia las carpetas de samples (separadas por `;`). Para tocar desde otro equipo de la red local hace falta HTTPS con un certificado en `cert/` (igual que en djtest).
