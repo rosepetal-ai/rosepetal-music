@@ -20,6 +20,7 @@ Descargados el 2026-11-04 con el conector de SFXMint (`https://sfxmint.com/mcp`)
 | `sfx_acoustic_drum_kit_floor_tom_01` | acoustic-drum-kit-floor-tom-01.wav | 3,0 s | Do2 | https://sfxmint.com/sounds/acoustic-drum-kit-floor-tom-01 | `e485426278abe5f0dd5dd0f36f803e1a9df6fd7513124f0c617f7ecaa1ea0c8a` |
 | `sfx_acoustic_drum_kit_snare_01` | acoustic-drum-kit-snare-01.wav | 1,5 s | — | https://sfxmint.com/sounds/acoustic-drum-kit-snare-01 | `467bf419366117e66d4047161ebcce9dc29616b57b931d1afb1e67f38fc27e33` |
 | `sfx_acoustic_drum_kit_snare_cross_stick_01` | acoustic-drum-kit-snare-cross-stick-01.wav | 2,0 s | — | https://sfxmint.com/sounds/acoustic-drum-kit-snare-cross-stick-01 | `874ca9f42f2d08ef7f91c2dc6eb8f4ce1ef1e5b068f0efead62ca3b6c16ab04e` |
+| `sfx_acoustic_drum_kit_crash_01` | acoustic-drum-kit-crash-01.wav | 6,0 s | — | https://sfxmint.com/sounds/acoustic-drum-kit-crash-01 | `c5876f39c6a2010f4f23bea3a03d2e699f63fb254685ac084076ff7de8d7b946` |
 
 Para afinar un sample melódico en Strudel: `speed = 2^(semitonos / 12)` desde su nota medida.
 
@@ -58,5 +59,5 @@ Para afinar un sample melódico en Strudel: `speed = 2^(semitonos / 12)` desde s
 ## Missing
 
 - **Nota suelta de piano:** SFXMint solo tiene acordes; se usa el Steinway de VCSL. Para generarla en SFXMint Studio: https://sfxmint.com/s/e7e5493175
-- **Nota de cello:** ni SFXMint ni VCSL la tienen; en las piezas 02 y 03 los cellos son sintetizados (diente de sierra filtrado con vibrato) y hacen de sustitutos. Para generarla en SFXMint Studio: https://sfxmint.com/s/627945ff78
+- **Nota de cello:** ni SFXMint ni VCSL la tienen; en las piezas 02, 03 y 04 los cellos son sintetizados (diente de sierra filtrado con vibrato) y hacen de sustitutos. Para generarla en SFXMint Studio: https://sfxmint.com/s/627945ff78
 - **Pizzicato de contrabajo:** se usa como sustituto el pizzicato de violín (`violin-sting-09`) transpuesto hacia abajo, con un seno grave debajo.
