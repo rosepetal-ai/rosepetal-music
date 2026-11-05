@@ -8,7 +8,7 @@
 // sube poco a poco. Subidas de ruido antes de cada B y, más fuerte, antes del estribillo. El último A es el más lleno.
 // Mezcla: la batería va al frente; el piano, a dos manos y por detrás de todo.
 //
-// Para equipos modestos: ~60 notas por compás como mucho, una sola reverb y un solo eco (canal 2: pad, arpegio, piano,
+// Para equipos modestos: 55 notas por compás como mucho, una sola reverb y un solo eco (canal 2: pad, arpegio, piano,
 // cello, violín y sinte agudo); bajo y batería van secos en el canal 1.
 // Instrumentos: piano `steinway` (VCSL, CC0) · cello y violín sintetizados (sierra filtrada con vibrato; ni SFXMint ni
 // VCSL tienen cuerda frotada) · bajo de onda triangular · bombo, caja y platillo (SFXMint) ·
@@ -54,7 +54,7 @@ const snare = s("[~ x ~ x]");
 const snareC = s("<[~ x ~ x]!7 [~ x [x x] [x x x x]]>");
 const ghosts = s("<[~ ~ ~ ~ ~ ~ ~ x ~ x ~ ~ ~ ~ ~ ~] [~ ~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~ x ~ x]>");
 const hats8 = s("white*8");
-const hats16 = s("white*16");
+const hats16 = s("[white white white white white white white ~]*2");   // sin la «a» del 2 y del 4: ahí suenan los fantasmas de caja
 const openHat = s("<~ [~ ~ ~ ~ ~ ~ ~ white]>");
 const once = s("<x ~!7>");                  // primer compás de la sección
 const lastBar = s("<~!7 x>");               // último compás de la sección
