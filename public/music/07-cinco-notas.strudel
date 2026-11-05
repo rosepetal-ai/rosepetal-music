@@ -1,0 +1,102 @@
+// Rosepetal Music · 07 · Cinco notas
+// Post-rock / downtempo que crece poco a poco. 98 BPM, Sol mayor. 1 ciclo = 1 compás.
+// Hilo conductor: el motivo del xilófono (nació con 5 notas, ahora lleva 7): sube por el acorde de Sol hasta el la
+// agudo, se posa en mi–re y un la grave lo devuelve al principio. Con un eco suave.
+// Acordes (2 compases cada uno): Do | Sol/Si | Mi m | Re sus2.
+//
+// Forma (72 compases, ~2 min 56 s): los instrumentos entran de uno en uno
+//   1 xilófono solo (8) · 2 + pad con mucha reverb (8) · 3 + bajo cálido (8) · 4 + piano en arpegio (8)
+//   5 + batería muy suave: timbal de suelo (8) · 6 + cuerdas (salterio de arco), bombo, aro y charles;
+//     redoble y subida de ruido en el último compás (8)
+//   7 clímax amplio: bajo en corcheas, caja, platillos, cuerdas a dos octavas (16)
+//   8 final: la batería se va con un platillo, luego el bajo; todo se apaga y queda el xilófono (8)
+//
+// Ligera: ~40 notas por compás en el clímax; una sola reverb y un solo eco (canal 2), batería y bajo secos.
+// Instrumentos: xilófono `xilofono`, piano `steinway` y salterio de arco `psalterio` (VCSL, CC0) · pad y bajo de onda
+// triangular · bombo, caja, aro, timbal de suelo y platillo (SFXMint) · charles con ruido.
+
+// La forma: cada capa recibe su versión de cada sección
+const forma = (uno, dos, tres, cuatro, cinco, seis, climax, fin) =>
+  arrange([8, uno], [8, dos], [8, tres], [8, cuatro], [8, cinco], [8, seis], [16, climax], [8, fin]);
+const S = silence;
+const mitad = "<1!4 0!4>";                  // máscara: se va a mitad de la sección
+const ultimo = s("<~!7 x>");                // último compás de la sección
+const primero = s("<x ~!7>");               // primer compás de la sección
+
+// ── Xilófono: el motivo (7 notas en 2 compases, corcheas) ──
+const motivo = note("<[b5 ~ d6 ~ g6 ~ a6 ~] [~ e6 ~ d6 ~ ~ ~ a5]>");
+
+// ── Pad: un acorde cada 2 compases ──
+const acordes = note("<[c3,g3,b3,e4] [b2,g3,b3,d4] [e3,g3,b3,d4] [d3,a3,d4,e4]>").slow(2);
+
+// ── Bajo: notas largas; luego negras; en el clímax, corcheas ──
+const bajoLargo = note("<c2 b1 e2 d2>").slow(2);
+const bajoNegras = note("<[c2*4]!2 [b1*4]!2 [e2*4]!2 [d2*4]!2>");
+const bajoCorcheas = note("<[c2*8]!2 [b1*8]!2 [e2*8]!2 [d2*8]!2>");
+
+// ── Piano: arpegio en corcheas, en el registro medio (debajo del xilófono) ──
+const arpegio = note("<[c3 g3 d4 e4 g4 e4 d4 g3]!2 [b2 g3 d4 g4 b4 g4 d4 g3]!2 [e3 b3 f#4 g4 b4 g4 f#4 b3]!2 [d3 a3 e4 a4 d5 a4 e4 a3]!2>");
+
+// ── Cuerdas: una nota por compás que respira; en el clímax, también una octava arriba ──
+const cuerdas = note("<e5 g5 d5 b4 g4 b4 a4 ~>");
+const cuerdasAltas = note("<e6 g6 d6 b5 g5 b5 a5 ~>");
+
+// ── Batería ──
+const tomNegras = s("x*4").velocity("[1 0.55 0.75 0.55]");
+const tomRedoble = s("<[x*4]!7 [x*8]>").velocity("<[1 0.55 0.75 0.55]!7 [0.4 0.5 0.6 0.7 0.8 0.9 1 1]>");
+const bombo = s("[x ~ ~ ~ x ~ ~ ~]");
+const bomboClimax = s("[x ~ ~ x x ~ ~ ~]");
+const caja = s("[~ x ~ x]");
+const charles = s("white*8");
+
+stack(
+  // Xilófono: siempre; en el final se va apagando
+  forma(motivo.gain(0.5), motivo.gain(0.5), motivo.gain(0.5), motivo.gain(0.5), motivo.gain(0.5), motivo.gain(0.5),
+        motivo.gain(0.55), motivo.gain("<0.5 0.5 0.48 0.45 0.4 0.34 0.27 0.2>"))
+    .s("xilofono").lpf(8000).delay(0.22).delaytime(0.459).delayfeedback(0.35).orbit(2).room(0.5).size(4),
+
+  // Pad (triángulo) con mucha reverb: entra poco a poco y se abre en el clímax
+  forma(S, acordes.lpf(800).gain("<0.02 0.03 0.045 0.06 0.07 0.08 0.09 0.1>"), acordes.lpf(900).gain(0.1),
+        acordes.lpf(1000).gain(0.1), acordes.lpf(1100).gain(0.1), acordes.lpf(1300).gain(0.11), acordes.lpf(2200).gain(0.13),
+        acordes.lpf(1000).gain("<0.1 0.09 0.08 0.07 0.05 0.04 0.03 0.02>"))
+    .s("triangle").attack(2).decay(1).sustain(0.85).release(3).orbit(2).room(0.8).size(4),
+
+  // Bajo cálido (triángulo filtrado), seco
+  forma(S, S, bajoLargo.gain("<0.2 0.2 0.26 0.26 0.32 0.32 0.38 0.38>"), bajoLargo.gain(0.4), bajoLargo.gain(0.4), S, S,
+        bajoLargo.gain(0.4).mask(mitad))
+    .s("triangle").attack(0.08).decay(0.8).sustain(0.7).release(1).lpf(550),
+  forma(S, S, S, S, S, bajoNegras.gain(0.4), S, S)
+    .s("triangle").attack(0.02).decay(0.3).sustain(0.6).release(0.3).lpf(600),
+  forma(S, S, S, S, S, S, bajoCorcheas.gain(0.42), S)
+    .s("triangle").attack(0.01).decay(0.2).sustain(0.5).release(0.15).lpf(700),
+
+  // Piano (Steinway) en arpegio, suave
+  forma(S, S, S, arpegio.gain("<0.12 0.15 0.18 0.21 0.24 0.27 0.3 0.3>"), arpegio.gain(0.3), arpegio.gain(0.3),
+        arpegio.gain(0.36), arpegio.gain("<0.3 0.26 0.22 0.18 0.14 0.1 0.06 0.03>"))
+    .s("steinway").velocity(0.35).lpf(2200).orbit(2).room(0.5).size(4).pan(0.4),
+
+  // Cuerdas: salterio de arco (VCSL), en crescendo; en el clímax, a dos octavas
+  forma(S, S, S, S, S, cuerdas.gain("<0.12 0.15 0.18 0.21 0.24 0.27 0.3 0.32>"), cuerdas.gain(0.3),
+        cuerdas.gain("<0.25 0.2 0.15 0.1>").mask(mitad))
+    .s("psalterio").clip(1).attack(0.15).release(0.6).hpf(200).lpf(6000).orbit(2).room(0.6).size(4).pan(0.58),
+  forma(S, S, S, S, S, S, cuerdasAltas.gain(0.3), S)
+    .s("psalterio").clip(1).attack(0.15).release(0.6).hpf(300).lpf(7000).orbit(2).room(0.6).size(4).pan(0.66),
+
+  // Batería, seca: primero un timbal de suelo muy suave; luego bombo, aro y charles; en el clímax, caja y platillos
+  forma(S, S, S, S, tomNegras.gain("<0.08 0.1 0.12 0.14 0.16 0.18 0.2 0.22>"), tomRedoble.gain(0.24), S, S)
+    .s("sfx_acoustic_drum_kit_floor_tom_01").lpf(2500).pan(0.45),
+  forma(S, S, S, S, S, bombo.gain(0.8), bomboClimax.gain(1.2), S)
+    .s("sfx_acoustic_drum_kit_kick_01").lpf(750),
+  forma(S, S, S, S, S, caja.gain(0.18), S, S)
+    .s("sfx_acoustic_drum_kit_snare_cross_stick_01").lpf(3000),
+  forma(S, S, S, S, S, S, caja.gain(0.9), S)
+    .s("sfx_acoustic_drum_kit_snare_01").hpf(150).lpf(4000),
+  forma(S, S, S, S, S, charles.gain("[0.035 0.018]*4"), charles.gain("[0.075 0.04]*4"), S)
+    .decay(0.03).sustain(0).hpf(6000).lpf(8500).pan(0.56),
+  // Platillo cada 4 compases en el clímax y uno al empezar el final
+  forma(S, S, S, S, S, S, s("<x ~ ~ ~>"), primero)
+    .s("sfx_acoustic_drum_kit_crash_01").lpf(8000).hpf(300).pan(0.42).gain(0.26),
+  // Subida de ruido en el último compás antes del clímax
+  forma(S, S, S, S, S, ultimo, S, S)
+    .s("white").attack(2.2).decay(0.1).sustain(1).release(0.05).hpf(2500).lpf(8000).gain(0.06)
+).cpm(98 / 4)

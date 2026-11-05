@@ -93,6 +93,29 @@ Para afinar un sample melódico en Strudel: `speed = 2^(semitonos / 12)` desde s
 | psalterio_Fs6.wav | `e7fa5167f487c28aa9e8bf80c812d6992c98acfbf79859566f63d47f002148e4` |
 | psalterio_Gs5.wav | `2c38b2aefa479fbc5e6bc8e2193c7dbf87afcd7604eab101174854f559756520` |
 
+## 99Sounds x Dronny Darko · Cinematic Textures (no está en el repositorio)
+
+- **Origen:** pack gratuito «99Sounds x Dronny Darko – Cinematic Textures» de [99sounds.org](https://99sounds.org) (40 texturas, drones y efectos de cine en WAV de 24 bits). Lo usa la pieza 10.
+- **Licencia:** libre de derechos para usar en música y vídeo, pero **los samples no se pueden redistribuir**. Por eso git no los sube (`samples/*` está ignorado salvo SFXMint y VCSL). Los términos exactos están en 99sounds.org.
+- **Cómo tenerlos:** descarga el pack de 99sounds.org, descomprímelo y ejecuta
+  `node tools/prep-dronny-darko.js "<carpeta>/99Sounds x Dronny Darko Cinematic Textures" samples/Texturas/DronnyDarko`.
+  El script recorta (texturas a 30 s desde el segundo indicado; golpes enteros), funde la entrada y la salida, normaliza
+  (texturas a −3 dBFS y golpes a −1 dBFS) y guarda WAV de 16 bits. El servidor sirve cada archivo como un banco con su nombre.
+- **Selección:** solo los 8 sonidos limpios y tonales. Los granulares, con barridos o con glitches se descartaron tras medirlos con `tools/analisis/metricas-sonidos.js`.
+
+| Banco Strudel | Original | Nota | SHA-256 (procesado) |
+|---|---|---|---|
+| `dd_resonancia` | Chrono-Scouts (drones)/03 Celestial Resonance.wav, desde 4 s | Re | `c24b13ae9db2dc744d42b5e79108400c0277e929e6d1fea68f35889bf6b91792` |
+| `dd_hiperimpulso` | Aetheric (synthesys)/01 Hyperdrive Engage.wav, desde 2 s | Re | `cc3c4fe26cba3a941102919601b1a461375dd4a532f356ce6de42eae8a6af76f` |
+| `dd_pulso` | Aetheric (synthesys)/05 Dark Matter Pulse.wav, desde 10 s | Do (a Re con `speed(1.1225)`) | `ab9e9cd812bd86a4944c276ecaa64e9dbf4452588a3d4fbc1e3b55439425d3aa` |
+| `dd_entrelazado` | Aetheric (synthesys)/06 Quantum Entanglement.wav, desde 10 s | Do (a Re con `speed(1.1225)`) | `bc19418e9ec2a6684dbb29b2997f472be7ef27fe1105c0579d19972fe33c4e1d` |
+| `dd_choque` | Nebula Essence (fx)/01 Quantum Shockwave.wav | impacto Do–Sol–Re | `e36824debc7ab5ec0b8f624bc007104b903421cb81da5fe6ab08fc7f27756d32` |
+| `dd_singularidad` | Nebula Essence (fx)/05 Singularity Burst.wav | golpe grave, Fa# | `d4d55c1373c12b36d1a15d3a9e04ade10bdf509b6b4ecfeb8c9ee7c58d3c4986` |
+| `dd_subida` | Nebula Essence (fx)/10 Tachyon Surge.wav | barrido de ruido | `a3a648a0f4701c928fa648f5d2f9e1b00c324a66d435077e23a8eca84a5f4239` |
+| `dd_cascada` | Aetheric (synthesys)/10 Quantum Cascade.wav | crecida larga, Re# | `dbc07a68634a85615ee8674fb7cebb12e80b5a7e5a1e08cc9d0db0ad7858031e` |
+
+Sin estos archivos, las capas de texturas de la pieza 10 no suenan.
+
 ## Missing
 
 - **Nota suelta de piano:** SFXMint solo tiene acordes; se usa el Steinway de VCSL. Para generarla en SFXMint Studio: https://sfxmint.com/s/e7e5493175

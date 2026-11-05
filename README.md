@@ -51,6 +51,12 @@ Strudel genera el audio en el navegador, en tiempo real. En una Surface Go 3 (Co
 | `03-ambient-trance.strudel` | 90 BPM, 16 compases, tranquila y alegre. Los instrumentos de la 02 sobre una base de ambient trance (pad que bombea, arpegio en semicorcheas, bajo pizzicato a contratiempo) con batería lofi con swing. Do maj9 · Sol add9 · La m7 · Fa maj9. |
 | `04-hacia-la-luz.strudel` | 90 BPM, Re mayor, luminosa y esperanzadora. Forma ABABCBA (56 compases, ~2 min 30 s): estrofa, puente y estribillo con violín. Batería downtempo al frente, piano a dos manos por detrás, bajo triangular con línea melódica, un sinte agudo que repite un motivo simple toda la pieza y un crecendo de principio a fin. |
 | `05-lofi.strudel` | Lofi hip-hop a 100 BPM en Sol mayor, forma AABCABCA (64 compases, ~2 min 34 s). A: groove con piano a dos manos, xilófono y batería boom-bap (entra a mitad del primer A y se va a mitad del último). B: subida con un cello en crescendo. C: estribillo con violines (salterio de arco real), más batería y platillo. Mucho vinilo. |
+| `06-ventanas-encendidas.strudel` | Downtempo / trip-hop nocturno y cinematográfico, 88 BPM, Fa# menor, 64 compases (~2 min 55 s). Un motivo de piano en 3+3+2 recorre toda la canción; estrofas, estribillos que suben al mayor relativo con las cuerdas a dos voces, un puente y un final que vuelve a dejar el piano solo. |
+| `07-cinco-notas.strudel` | Post-rock / downtempo que crece poco a poco, 98 BPM, Sol mayor, 72 compases (~2 min 56 s). El motivo del xilófono es el hilo; los instrumentos entran de uno en uno (pad, bajo, piano, timbal, cuerdas y batería) hasta un clímax amplio, y todo se apaga hasta dejar el xilófono solo. |
+| `08-latido-de-cristal.strudel` | Electrónica ambiental (Kiasmos, Ital Tek, Lorn), 118 BPM, Fa menor, 64 compases (~2 min 10 s). Bombo a negras, pad que bombea, piano apagado en 3-3-2, pulso de sierra a 3 contra 8 y bajo a contratiempo; en la pausa, un bajo oscuro y resonante y la melodía, que vuelve arriba en el clímax. |
+| `09-orbita-lenta.strudel` | Electrónica espacial con pulso, pensada como BSO para animaciones: 120 BPM, Re mayor lidio, 2 min justos. Cada sección empieza cada 16 s con un golpe para poder cortar en el montaje; secuencia de sierra en semicorcheas, salterio con el tema, estrellas FM, subida y cumbre. |
+| `10-codigo-petalo.strudel` | Banda sonora para las animaciones de Rosepetal con el aire de «Code 46» (The Free Association): 86 BPM, Re menor, 64 compases (~3 min). Breakbeat suave, piano, ostinato y salterio, sobre texturas de cine de Dronny Darko (necesita `samples/Texturas`, ver abajo). |
+| `11-belleza-callada.strudel` | Recreación de «Quiet Beauty», una canción hecha con Suno, a partir del análisis de sus pistas ([tools/analisis](tools/analisis/README.md)): 80,67 BPM, Re mayor, 77 compases (~3 min 49 s). Intro, groove A, B con cuerdas y metales, B2, parón sin bajo, final y cierre. |
 
 Cada pieza lleva en sus comentarios la forma, la armonía y la afinación de los samples.
 
@@ -61,5 +67,17 @@ Ojo al escribir piezas: en Strudel las comillas dobles son patrones de mini-nota
 - `server.js`: sirve la página, las piezas (`/music/`), los samples (`/samples/`) y el relé de DJ Claude (`/dj`). Viene del proyecto de visuales de DJ Claude (djtest). `ws-lite.js` es el WebSocket mínimo del relé.
 - `public/index.html`: reproductor. Registra los samples, recibe lo que manda DJ Claude y graba la salida.
 - `samples/SFXMint/`: los sonidos de SFXMint; `samples/VCSL/`: piano Steinway, xilófono y salterio de arco afinados nota a nota (VCSL, CC0). Licencias y huellas en [SOUNDS.md](SOUNDS.md). Cada archivo es un banco `sfx_<nombre>`; los WAV nuevos que pongas en esa carpeta aparecen solos en unos segundos. Otros packs en `samples/` se cargan pero git no los sube.
+- `samples/Texturas/`: texturas preparadas a mano; cada archivo es un banco con su nombre (`dd_resonancia`, `dd_pulso`…). Las de la pieza 10 vienen de «99Sounds x Dronny Darko – Cinematic Textures», que no se puede redistribuir: descárgalo de 99sounds.org y prepáralo con `tools/prep-dronny-darko.js` (ver [SOUNDS.md](SOUNDS.md)).
 
 La variable `SAMPLES_DIRS` cambia las carpetas de samples (separadas por `;`). Para tocar desde otro equipo de la red local hace falta HTTPS con un certificado en `cert/` (igual que en djtest).
+
+## Herramientas
+
+- **Comprobar una pieza sin abrir la página:**
+  ```bash
+  cd tools/strudel-check && npm install && cd ../..   # solo la primera vez
+  node tools/strudel-check/check.mjs public/music/11-belleza-callada.strudel
+  ```
+  Evalúa la pieza con el mismo Strudel que la página (1.2.6) y cuenta las notas de cada compás. Avisa si un compás pasa de 55 (el Surface Go puede cortar) y si un sonido no existe en el servidor. La página no devuelve los errores cuando la pieza llega por `POST /play`; esto sí.
+- **Analizar una canción de referencia** (tempo, compases, acordes, notas, secciones y timbre a partir de sus pistas separadas): [tools/analisis](tools/analisis/README.md). Usa librosa, Essentia y Basic Pitch en WSL.
+- **Preparar las texturas de Dronny Darko** de la pieza 10: `tools/prep-dronny-darko.js` (instrucciones en su cabecera).

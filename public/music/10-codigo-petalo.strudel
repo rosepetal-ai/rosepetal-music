@@ -1,0 +1,119 @@
+// Rosepetal Music · 10 · Código pétalo
+// Banda sonora para las animaciones de Rosepetal, con el aire de «Code 46» de The Free Association: electrónica melancólica
+// y cinematográfica, breakbeat suave, piano, un ostinato hipnótico y, debajo de todo, texturas de cine de Dronny Darko.
+// 86 BPM, Re menor. 64 compases (~2 min 59 s; 1 ciclo = 1 compás), en secciones de 8 (22 s), cada una con su golpe de entrada:
+//   I    0:00 apertura    — onda de choque y drones; el piano entra a mitad con acordes
+//   II   0:22 ciudad      — el ostinato y el bombo tapado; el bajo a mitad; un barrido lleva a III
+//   III  0:45 tema        — golpe grave y platillo; breakbeat con aro, piano a dos manos (acordes + melodía)
+//   IV   1:07 tema II     — caja y golpes fantasma; barrido al final
+//   V    1:29 suspensión  — sin batería ni bajo: el drone «hiperimpulso» y una crecida larga, el piano solo, el ostinato sube
+//   VI   1:52 clímax      — onda de choque y platillo, la melodía alta con el salterio de arco, batería más llena
+//   VII  2:14 clímax II   — golpe grave; salterio arriba y piano en contrapunto
+//   VIII 2:36 cierre      — la batería se va a mitad con el golpe final (2:47) y el acorde final; quedan los drones
+// Armonía (2 compases por acorde): Re m9 | Si♭ maj9 | Sol m9 | La m7(11); las texturas van afinadas a Re (pedal).
+//
+// Texturas: «99Sounds x Dronny Darko – Cinematic Textures» (libres de derechos para usar en música y vídeo, pero NO se
+// pueden redistribuir: no están en el repositorio). Se preparan con `tools/prep-dronny-darko.js` en samples/Texturas/DronnyDarko
+// (recorte, fundidos, normalizadas). Solo las limpias y tonales: se descartaron las granulares, con barridos de tono o glitches.
+// Se afinan a Re con speed: 1,1225 = +2 semitonos · 1,0595 = +1 · 0,9439 = −1 · 0,7937 = −4 · 0,5 y 2 = una octava.
+// Las texturas suenan secas (ya traen su espacio); reverb solo en el canal 2 (piano, salterio, ostinato, golpe grave).
+// Ligera: ~50 notas por compás como mucho y pocas texturas a la vez.
+
+// La forma: cada capa recibe su versión de cada sección
+const form = (apertura, ciudad, tema, tema2, suspension, climax, climax2, cierre) =>
+  arrange([8, apertura], [8, ciudad], [8, tema], [8, tema2], [8, suspension], [8, climax], [8, climax2], [8, cierre]);
+const half2 = "<0!4 1!4>";            // entra a mitad de la sección
+const half1 = "<1!4 0!4>";            // se va a mitad de la sección
+const once = s("<x ~!7>");            // al empezar la sección
+const atBar5 = s("<~!4 x ~!3>");      // a mitad de la sección
+const every4 = s("<x ~!3>");          // cada 4 compases
+const lastBar = s("<~!7 x>");         // en el último compás (subidas: llegan al golpe de la sección siguiente)
+const leadIn = s("<~!6 [~ x] ~>");    // compás y medio antes de la sección siguiente (choque crono: pico en el 1)
+
+// ── Piano: acordes (mano izquierda) y melodía (mano derecha) ──
+const chords = note("<[[f3,a3,c4,e4] ~ ~ ~ ~ [f3,a3,c4,e4] ~ ~] [[f3,a3,c4,e4] ~ ~ ~ ~ ~ ~ ~] [[f3,a3,c4,d4] ~ ~ ~ ~ [f3,a3,c4,d4] ~ ~] [[f3,a3,c4,d4] ~ ~ ~ ~ ~ ~ ~] [[f3,a3,bb3,d4] ~ ~ ~ ~ [f3,a3,bb3,d4] ~ ~] [[f3,a3,bb3,d4] ~ ~ ~ ~ ~ ~ ~] [[g3,c4,d4,e4] ~ ~ ~ ~ [g3,c4,d4,e4] ~ ~] [[g3,c4,d4,e4] ~ ~ ~ ~ ~ ~ ~]>");
+const melA = note("<[~ ~ a4 ~ d5 ~ e5 ~] [f5@4 e5@2 d5@2] [~ ~ d5 ~ f5 ~ a5 ~] [g5@4 f5@2 e5@2] [~ ~ bb4 ~ d5 ~ f5 ~] [e5@4 d5@2 c5@2] [~ ~ c5 ~ e5 ~ g5 ~] [e5@6 ~ ~]>");
+const finalChord = note("<~!4 [d3,a3,d4,f4,a4] ~!3>");
+// ── Melodía alta del clímax (salterio de arco) ──
+const melB = note("<[a5@4 g5@2 f5@2] [e5@4 f5@2 a5@2] [d6@4 c6@2 a5@2] [f5@6 ~ ~] [bb5@4 a5@2 g5@2] [f5@4 d5@2 f5@2] [e5@4 g5@2 c6@2] [a5@6 ~ ~]>");
+// ── Ostinato: La–Re–Mi en corcheas (3 contra 8), igual sobre los cuatro acordes ──
+const ostinato = note("<[a5 d6 e6 a5 d6 e6 a5 d6] [e6 a5 d6 e6 a5 d6 e6 a5] [d6 e6 a5 d6 e6 a5 d6 e6]>");
+// ── Bajo ──
+const bass = note("<[d2@5 ~ a1 ~] [d2@3 ~ c2@2 a1@2] [bb1@5 ~ f2 ~] [bb1@3 ~ c2@2 d2@2] [g1@5 ~ d2 ~] [g1@3 ~ bb1@2 c2@2] [a1@5 ~ e2 ~] [a1@3 ~ c2@2 e2@2]>");
+
+// ── Batería (breakbeat suave) ──
+const kickA = s("<[x ~ ~ ~ ~ ~ ~ x ~ ~ x ~ ~ ~ ~ ~] [x ~ x ~ ~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~]>");
+const kickB = s("<[x ~ ~ ~ ~ ~ ~ x ~ ~ x ~ ~ ~ x ~] [x ~ x ~ ~ ~ ~ x ~ ~ x ~ ~ x ~ ~]>");
+const backbeat = s("[~ x]*2");
+const ghosts = s("<[~ ~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~ ~ ~ ~] [~ ~ ~ ~ ~ ~ ~ x ~ x ~ ~ ~ ~ ~ x]>");
+const hats = s("white*16");
+
+stack(
+  // ── Texturas de Dronny Darko: solo las limpias y tonales, todas en Re (secas; cada una se dispara al empezar su sección
+  //    y dura más que la sección, así que se encadenan) ──
+  // Resonancia celeste (Re): la base de casi toda la pieza; y una octava abajo (speed 0,5, dura ~1 min) bajo el clímax
+  form(once, once, once, once, once, silence, silence, once).s("dd_resonancia").gain(0.32),
+  form(silence, silence, silence, silence, once, silence, once, silence).s("dd_resonancia").speed(0.5).lpf(1200).gain(0.3),
+  // Pulso de materia oscura (Do → Re): un tono limpio en las partes abiertas
+  form(once, once, silence, silence, once, silence, silence, once).s("dd_pulso").speed(1.1225).gain(0.22),
+  // Entrelazado cuántico (Do → Re) bajo el tema
+  form(silence, silence, once, once, silence, silence, once, silence).s("dd_entrelazado").speed(1.1225).gain(0.16),
+  // Hiperimpulso (Re puro): crece en la suspensión y sostiene el clímax; y una octava arriba como brillo (cada 4 compases)
+  form(silence, silence, silence, silence, once, once, once, silence).s("dd_hiperimpulso").gain(0.26),
+  form(silence, silence, silence, silence, silence, every4, every4, silence).s("dd_hiperimpulso").speed(2).hpf(1500).gain(0.1),
+
+  // ── Golpes y barridos que marcan cada sección ──
+  // Onda de choque (impacto tonal, Do–Sol–Re → Re–La–Mi): apertura, suspensión (tapada), clímax y el golpe final
+  form(once.gain(0.5), silence, silence, silence, once.lpf(2500).gain(0.35), once.gain(0.5), silence, atBar5.gain(0.5))
+    .s("dd_choque").speed(1.1225),
+  // Estallido de singularidad (golpe grave y suave, Fa# → Re) al entrar el tema y el clímax II
+  form(silence, silence, once, silence, silence, silence, once, silence).s("dd_singularidad").speed(0.7937).gain(0.42),
+  // Bombo muy grave con reverb, debajo de los golpes del tema y los clímax
+  form(silence, silence, once, silence, silence, once, once, silence)
+    .s("sfx_acoustic_drum_kit_kick_01").speed(0.55).lpf(400).orbit(2).room(0.4).size(4).gain(0.75),
+  // Barrido de ruido en el último compás antes de cada entrada (ciudad, tema, suspensión, clímax y clímax II)
+  form(lastBar, lastBar, silence, lastBar, lastBar, lastBar, silence, silence).s("dd_subida").speed(1.0595).hpf(500).gain(0.28),
+  // Crecida larga durante la suspensión (Re# → Re)
+  form(silence, silence, silence, silence, once, silence, silence, silence).s("dd_cascada").speed(0.9439).gain(0.3),
+  // Platillo (SFXMint) con los golpes del tema y los clímax
+  form(silence, silence, once, silence, silence, once, once, silence)
+    .s("sfx_acoustic_drum_kit_crash_01").hpf(400).lpf(8000).pan(0.42).gain(0.2),
+
+  // ── Piano (Steinway): acordes apagados y la melodía; acorde final con el último golpe ──
+  form(chords.mask(half2), chords, chords, chords, silence, chords, chords, chords.mask(half1))
+    .s("steinway").velocity(0.28).lpf(1800).orbit(2).room(0.45).size(4).pan(0.44).gain(0.36),
+  form(silence, silence, melA, melA, melA, silence, melA, silence)
+    .s("steinway").velocity(0.36).lpf(3200).orbit(2).room(0.5).size(4).pan(0.56).gain(0.4),
+  form(silence, silence, silence, silence, silence, silence, silence, finalChord)
+    .s("steinway").velocity(0.4).lpf(2600).orbit(2).room(0.6).size(4).pan(0.5).gain(0.42),
+  // Salterio de arco (VCSL): la melodía alta del clímax
+  form(silence, silence, silence, silence, silence, melB, melB, silence)
+    .s("psalterio").clip(1).attack(0.05).release(0.4).hpf(250).lpf(7000)
+    .orbit(2).room(0.55).size(4).pan(0.5).gain(0.36),
+
+  // ── Ostinato (triángulo): entra en la ciudad, se abre con el tema y sube en la suspensión ──
+  form(silence, ostinato.mask(half2).lpf(900), ostinato.lpf(1500), ostinato.lpf(2000),
+       ostinato.lpf("<900 1100 1300 1600 1900 2300 2700 3200>"), ostinato.lpf(2600), ostinato.lpf(3000), ostinato.mask(half1).lpf(1500))
+    .s("triangle").attack(0.003).decay(0.2).sustain(0).release(0.05)
+    .orbit(2).room(0.4).size(4).pan(sine.range(0.3, 0.7).slow(4)).gain(0.06),
+
+  // ── Bajo (triángulo filtrado) ──
+  form(silence, bass.mask(half2), bass, bass, silence, bass, bass, bass.mask(half1))
+    .s("triangle").attack(0.01).decay(0.5).sustain(0.55).release(0.2).lpf(650).gain(0.42),
+
+  // ── Batería (SFXMint + charles de ruido), con un swing ligero ──
+  form(silence, kickA.mask(half2).lpf(320), kickA.lpf(900), kickA.lpf(900), silence, kickB.lpf(950), kickB.lpf(950), kickA.mask(half1).lpf(900))
+    .s("sfx_acoustic_drum_kit_kick_01").swingBy(1/6, 8).gain(1.1),
+  form(silence, silence, silence, backbeat, silence, backbeat, backbeat, backbeat.mask(half1))
+    .s("sfx_acoustic_drum_kit_snare_01").late(0.015).hpf(200).lpf(4000).gain(0.7),
+  form(silence, silence, backbeat, silence, silence, silence, silence, silence)
+    .s("sfx_acoustic_drum_kit_snare_cross_stick_01").late(0.015).lpf(4000).gain(0.32),
+  form(silence, silence, silence, ghosts, silence, ghosts, ghosts, silence)
+    .s("sfx_acoustic_drum_kit_snare_01").swingBy(1/6, 8).hpf(250).lpf(3000).gain(0.18),
+  form(silence, silence, hats.gain("[0.045 0.015 0.03 0.015]*4"), hats.gain("[0.055 0.02 0.035 0.02]*4"), silence,
+       hats.gain("[0.07 0.025 0.045 0.025]*4"), hats.gain("[0.075 0.028 0.05 0.028]*4"), hats.mask(half1).gain("[0.05 0.018 0.03 0.018]*4"))
+    .swingBy(1/6, 8).decay(0.03).sustain(0).hpf(7000).lpf(11000).pan(0.57),
+  // Charles abierto cada dos compases en el clímax
+  form(silence, silence, silence, silence, silence, s("<~ [~ ~ ~ ~ ~ ~ ~ white]>"), s("<~ [~ ~ ~ ~ ~ ~ ~ white]>"), silence)
+    .decay(0.25).sustain(0).hpf(5500).pan(0.6).gain(0.06)
+).cpm(86 / 4)

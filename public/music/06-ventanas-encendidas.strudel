@@ -1,0 +1,134 @@
+// Rosepetal Music · 06 · Ventanas encendidas
+// Downtempo / trip-hop nocturno y cinematográfico, 88 BPM, Fa# menor. 64 compases (~2 min 55 s; 1 ciclo = 1 compás):
+//   Intro      (8): el motivo del piano solo, con lluvia; a mitad entran bombo apagado y aro
+//   Estrofa    (8): Fa#m | Fa#m/Mi | Re maj7 | Do#m7 | Si m9 | Fa#m/La | Re maj7 | Do#7sus4 → Do#7  (el bajo baja Fa# Mi Re Do#)
+//   Estribillo (8): Re maj7 | La/Do# | Si m7 | Mi sus4 → Mi | Re maj7 | Mi | Do#m7 | Fa#m  — sube al mayor relativo:
+//                   las cuerdas cantan el tema a dos voces y el piano sigue con su motivo una octava más abajo
+//   Estrofa 2  (8): como la primera, con cuerdas largas por encima
+//   Estribillo (8)
+//   Puente     (8): Si m9 | Si m9/La | Sol maj7 | Sol maj7 | Re maj7 | La/Do# | Do#7sus4 | Do#7 — la batería se va y vuelve,
+//                   las cuerdas llevan una melodía lenta; redoble y subida de ruido hacia el último estribillo
+//   Estribillo (8): el más lleno (melodía doblada a la octava baja, charles en semicorcheas)
+//   Final      (8): el motivo del piano vuelve a quedarse solo y la batería se va a mitad; acaba en Fa#m y enlaza con la intro
+// El motivo del piano (Do# Fa# y una tercera nota que cambia con el acorde, ritmo 3+3+2) suena en casi toda la canción.
+//
+// Ligera: ~50 notas por compás como mucho; una sola reverb (canal 2: pad, piano y cuerdas) y ningún eco;
+// bajo y batería secos en el canal 1.
+// Instrumentos: piano `steinway` y cuerdas `psalterio` (salterio de arco, VCSL, CC0) · pad y bajo de onda triangular ·
+// bombo, caja, aro y platillo (SFXMint) · charles con ruido · lluvia (SFXMint) y crepitar de vinilo.
+
+// La forma: cada capa recibe sus versiones de intro, estrofa 1, estribillo, estrofa 2, (estribillo 2), puente, (último estribillo) y final
+const form = ({ intro = silence, v1 = silence, c1 = silence, v2 = silence, c2 = c1, p = silence, c3 = c2, fin = silence }) =>
+  arrange([8, intro], [8, v1], [8, c1], [8, v2], [8, c2], [8, p], [8, c3], [8, fin]);
+const halfIn = "<0!4 1!4>";                 // máscara: entra a mitad de la sección
+const halfOut = "<1!4 0!4>";                // máscara: se va a mitad de la sección
+const once = s("<x ~!7>");                  // primer compás de la sección
+const lastBar = s("<~!7 x>");               // último compás de la sección
+
+// ── Pad: un acorde por compás ──
+const padV = note("<[f#3,a3,c#4,e4] [e3,a3,c#4,f#4] [d3,a3,c#4,f#4] [c#3,g#3,b3,e4] [b2,d3,a3,c#4] [a2,f#3,a3,c#4] [d3,a3,c#4,f#4] [[c#3,g#3,b3,f#4] [c#3,f3,g#3,b3]]>");
+const padC = note("<[d3,a3,c#4,f#4] [c#3,a3,c#4,e4] [b2,f#3,a3,d4] [[e3,a3,b3,e4] [e3,g#3,b3,e4]] [d3,a3,c#4,f#4] [e3,g#3,b3,e4] [c#3,g#3,b3,e4] [f#3,a3,c#4,e4]>");
+const padP = note("<[b2,d3,a3,c#4] [a2,d3,f#3,c#4] [g2,d3,f#3,b3]!2 [d3,a3,c#4,f#4] [c#3,a3,c#4,e4] [c#3,g#3,b3,f#4] [c#3,f3,g#3,b3]>");
+const padF = note("<[f#3,a3,c#4,e4] [e3,a3,c#4,f#4] [d3,a3,c#4,f#4] [c#3,g#3,b3,e4] [b2,d3,a3,c#4] [d3,a3,c#4,f#4] [f#3,a3,c#4,g#4]!2>");
+
+// ── Piano, mano derecha: el motivo (Do# Fa# y una tercera nota que sigue al acorde) ──
+const motV = note("<[c#5@3 f#5@3 e5@2] [c#5@3 f#5@3 a5@2] [c#5@3 f#5@3 e5@2] [c#5@3 e5@3 b4@2] [c#5@3 f#5@3 d5@2] [c#5@3 f#5@3 a5@2] [c#5@3 f#5@3 e5@2] [c#5@3 f#5@3 f5@2]>");
+const motC = note("<[c#4@3 f#4@3 a4@2] [c#4@3 e4@3 a4@2] [c#4@3 f#4@3 d4@2] [b3@3 e4@3 g#4@2] [c#4@3 f#4@3 a4@2] [b3@3 e4@3 g#4@2] [c#4@3 e4@3 g#4@2] [c#4@3 f#4@3 a4@2]>");
+const motP = note("<[c#5@3 f#5@5]!5 [c#5@3 e5@5] [c#5@3 f#5@5] [c#5@3 f5@5]>");
+const motF = note("<[c#5@3 f#5@3 e5@2] [c#5@3 f#5@3 a5@2] [c#5@3 f#5@3 e5@2] [c#5@3 e5@3 b4@2] [c#5@3 f#5@3 d5@2] [c#5@3 f#5@3 e5@2] [c#5@3 f#5@3 g#5@2] [[f#4,c#5]@3 a5@5]>");
+// ── Piano, mano izquierda: raíz y quinta al principio de cada compás ──
+const lhV = note("<[f#2,c#3] [e2,b2] [d2,a2] [c#2,g#2] [b2,f#3] [a2,e3] [d2,a2] [c#2,g#2]>");
+const lhF = note("<[f#2,c#3] [e2,b2] [d2,a2] [c#2,g#2] [b2,f#3] [d2,a2] [f#2,c#3] [f#2,c#3]>");
+
+// ── Cuerdas (salterio de arco) ──
+// El tema del estribillo y su segunda voz, a terceras por debajo
+const tema = note("<[a5@4 f#5@2 e5 f#5] [e5@6 c#5@2] [d5@3 e5@3 f#5@2] [b5@4 a5@2 g#5@2] [a5@4 f#5@2 a5 b5] [c#6@4 b5@2 g#5@2] [b5@3 a5 g#5@2 e5@2] [f#5@6 ~ ~]>");
+const tema2 = note("<[f#5@4 d5@2 c#5 d5] [c#5@6 a4@2] [b4@3 c#5@3 d5@2] [e5@8] [f#5@4 d5@2 f#5@2] [e5@4 g#5@2 e5@2] [g#5@3 f#5 e5@2 c#5@2] [c#5@6 ~ ~]>");
+const temaBajo = note("<[a4@4 f#4@2 e4 f#4] [e4@6 c#4@2] [d4@3 e4@3 f#4@2] [b4@4 a4@2 g#4@2] [a4@4 f#4@2 a4 b4] [c#5@4 b4@2 g#4@2] [b4@3 a4 g#4@2 e4@2] [f#4@6 ~ ~]>");
+// Notas largas por encima de la segunda estrofa y del final
+const largas = note("<c#6 b5 a5 g#5 f#5 a5 a5 [f#5 f5]>");
+// La melodía lenta del puente y su voz de abajo (acaba en Sol#, que sube al La del estribillo)
+const puente = note("<[d6@4 c#6@4] [c#6@4 a5@4] b5 [a5@4 b5@4] [a5@6 f#5@2] [e5@4 a5@4] f#5 [f5@4 g#5@4]>");
+const puente2 = note("<f#5 f#5 d5 d5 c#5 c#5 b4 b4>");
+
+// ── Bajo (triángulo filtrado): raíz larga, otra vez en el «y» del 3 y la quinta al final ──
+const bassV = note("<[f#2@10 f#2@4 c#3@2] [e2@10 e2@4 b2@2] [d2@10 d2@4 a2@2] [c#2@10 c#2@4 g#2@2] [b1@10 b1@4 f#2@2] [a1@10 a1@4 e2@2] [d2@10 d2@4 a2@2] [c#2@10 c#2@4 g#2@2]>");
+const bassC = note("<[d2@10 d2@4 a2@2] [c#2@10 c#2@4 e2@2] [b1@10 b1@4 d2@2] [e2@10 e2@4 b1@2] [d2@10 d2@4 a2@2] [e2@10 e2@4 b2@2] [c#2@10 c#2@4 g#2@2] [f#2@10 f#2@4 c#2@2]>");
+const bassP = note("<b1 a1 g1 g1 [d2@10 d2@4 a2@2] [c#2@10 c#2@4 e2@2] [c#2@10 c#2@4 g#2@2] [c#2 c#2 c#2 c#2]>");
+const bassF = note("<[f#2@10 f#2@4 c#3@2] [e2@10 e2@4 b2@2] [d2@10 d2@4 a2@2] [c#2@10 c#2@4 g#2@2] [b1@10 b1@4 f#2@2] d2 f#2 ~>");
+
+// ── Batería: breakbeat lento con swing de semicorcheas ──
+const kicks = s("<[x ~ ~ ~ ~ ~ ~ x ~ ~ x ~ ~ ~ ~ ~] [x ~ ~ x ~ ~ ~ ~ ~ ~ x ~ ~ ~ x ~]>");
+const kickIntro = s("[x ~ ~ ~ ~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~]");
+const kickP = s("<[x ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~]!4 [x ~ ~ ~ ~ ~ ~ x ~ ~ x ~ ~ ~ ~ ~]!3 [x ~ ~ ~ x ~ ~ ~ x ~ ~ ~ x ~ x x]>");
+const snare = s("[~ x ~ x]");
+const snareFill = s("<[~ x ~ x]!7 [~ x ~ [x ~ x x]]>");
+const snareP = s("<~!4 [~ x ~ x]!3 [~ x [~ x] [x x x x]]>");
+const ghosts = s("<[~ ~ ~ ~ ~ ~ ~ x ~ x ~ ~ ~ ~ ~ ~] [~ ~ ~ ~ ~ x ~ ~ ~ x ~ ~ ~ ~ ~ x]>");
+const rim = s("[~ x ~ x]");
+const hats8 = s("white*8");
+const hats16 = s("white*16");
+const openHat = s("<~ [~ ~ ~ ~ ~ ~ ~ white]>");
+
+stack(
+  // Noche: lluvia de SFXMint al fondo y crepitar de vinilo
+  s("sfx_ambience_rain_21").slow(3).hpf(350).lpf(5500).gain(0.07),
+  s("crackle").density(0.06).hpf(1300).gain(0.14),
+
+  // Pad aéreo de triángulo; el filtro respira despacio y se abre en los estribillos
+  form({
+    intro: padV.lpf(sine.range(700, 1000).slow(8)).gain(0.045),
+    v1: padV.lpf(sine.range(800, 1200).slow(8)).gain(0.05),
+    c1: padC.lpf(sine.range(1200, 1800).slow(8)).gain(0.065),
+    v2: padV.lpf(sine.range(900, 1300).slow(8)).gain(0.055),
+    p: padP.lpf(sine.range(900, 1600).slow(8)).gain(0.07),
+    c3: padC.lpf(sine.range(1400, 2000).slow(8)).gain(0.07),
+    fin: padF.lpf(sine.range(700, 1000).slow(8)).gain(0.05),
+  }).s("triangle").attack(0.8).decay(0.3).sustain(0.9).release(1.5).orbit(2).room(0.55).size(4).pan(0.5),
+
+  // Piano (Steinway): el motivo, sin eco; una octava más abajo y más suave en los estribillos
+  form({
+    intro: motV.velocity(0.42), v1: motV.velocity(0.48), c1: motC.velocity(0.34), v2: motV.velocity(0.46),
+    p: motP.velocity(0.3), c3: motC.velocity(0.36), fin: motF.velocity(0.42),
+  }).s("steinway").lpf(3600).orbit(2).room(0.5).size(4).pan(0.55).gain(0.45),
+  form({ intro: lhV, v1: lhV, c1: silence, v2: lhV, p: silence, fin: lhF })
+    .s("steinway").velocity(0.3).lpf(2200).orbit(2).room(0.5).size(4).pan(0.45).gain(0.32),
+
+  // Cuerdas: el tema y su segunda voz, abiertos a los lados; notas largas en la estrofa 2 y el final; melodía lenta en el puente
+  form({ c1: tema.gain(0.22), p: puente.gain(0.2), c3: tema.gain(0.26) })
+    .s("psalterio").clip(1).attack(0.12).release(0.4).lpf(6000).orbit(2).room(0.55).size(4).pan(0.62),
+  form({ c1: tema2.gain(0.13), p: puente2.gain(0.12), c3: tema2.gain(0.15) })
+    .s("psalterio").clip(1).attack(0.15).release(0.5).lpf(5000).orbit(2).room(0.6).size(4).pan(0.36),
+  form({ v2: largas.gain(0.13), c2: silence, c3: temaBajo.gain(0.1), fin: largas.mask(halfOut).gain(0.11) })
+    .s("psalterio").clip(1).attack(0.4).release(0.8).lpf(4500).orbit(2).room(0.6).size(4).pan(0.45),
+
+  // Bajo: triángulo filtrado, cálido y seco
+  form({ intro: bassV.mask(halfIn).gain(0.32), v1: bassV.gain(0.4), c1: bassC.gain(0.42), v2: bassV.gain(0.4), p: bassP.gain(0.4), fin: bassF.gain(0.38) })
+    .s("triangle").attack(0.01).decay(0.6).sustain(0.6).release(0.25).lpf(520),
+
+  // Bombo con peso (apagado en la intro)
+  form({
+    intro: kickIntro.mask(halfIn).lpf(450).gain(1), v1: kicks.lpf(900).gain(1.2), c1: kicks.lpf(950).gain(1.25),
+    v2: kicks.lpf(900).gain(1.2), p: kickP.lpf(800).gain(1.15), c3: kicks.lpf(1000).gain(1.28), fin: kicks.mask(halfOut).lpf(800).gain(1.1),
+  }).s("sfx_acoustic_drum_kit_kick_01").swingBy(1/6, 8),
+  // Caja un pelín tarde, más oscura en las estrofas; redoble al final del puente
+  form({
+    v1: snare.lpf(3400).gain(0.75), c1: snareFill.lpf(4800).gain(0.9), v2: snare.lpf(3800).gain(0.8),
+    p: snareP.lpf(4200).gain("<0 0 0 0 0.6 0.7 0.8 0.9>"), c3: snareFill.lpf(5000).gain(0.95), fin: snare.mask(halfOut).lpf(3400).gain(0.75),
+  }).s("sfx_acoustic_drum_kit_snare_01").late(0.012).hpf(150),
+  // Golpes fantasma de caja
+  form({ c1: ghosts, v2: ghosts, c3: ghosts }).s("sfx_acoustic_drum_kit_snare_01").swingBy(1/6, 8).lpf(2800).hpf(200).gain(0.2),
+  // Aro en la intro y en la primera mitad del puente
+  form({ intro: rim.mask(halfIn), p: rim.mask(halfOut) }).s("sfx_acoustic_drum_kit_snare_cross_stick_01").late(0.012).lpf(3500).gain(0.28),
+  // Charles: corcheas en las estrofas, semicorcheas con acentos en los estribillos
+  form({
+    intro: hats8.mask(halfIn).gain("[0.04 0.02]*4"), v1: hats8.gain("[0.07 0.035]*4"), c1: hats16.gain("[0.095 0.03 0.06 0.034]*4"),
+    v2: hats8.gain("[0.075 0.038]*4"), p: hats8.mask(halfIn).gain("[0.06 0.03]*4"), c3: hats16.gain("[0.105 0.032 0.065 0.036]*4"),
+    fin: hats8.mask(halfOut).gain("[0.06 0.03]*4"),
+  }).decay(0.03).sustain(0).hpf(6500).lpf(10000).swingBy(1/6, 8).pan(0.57),
+  form({ c1: openHat, c3: openHat }).decay(0.25).sustain(0).hpf(5500).pan(0.6).gain(0.07),
+  // Platillo al entrar cada estribillo (SFXMint) y subida de ruido justo antes
+  form({ c1: once, c3: once }).s("sfx_acoustic_drum_kit_crash_01").lpf(8500).hpf(300).pan(0.42).gain(0.24),
+  form({ v1: lastBar.gain(0.045), c1: silence, v2: lastBar.gain(0.05), c2: silence, p: lastBar.gain(0.08) })
+    .s("white").attack(2.4).decay(0.1).sustain(1).release(0.05).hpf(2500).lpf(8000)
+).cpm(88 / 4)

@@ -1,0 +1,140 @@
+// Rosepetal Music · 08 · Latido de cristal
+// Electrónica ambiental en la línea de Kiasmos, Ital Tek y Lorn: 118 BPM, Fa menor. Techno mínimo y suave:
+// bombo redondo a negras, un pad que «bombea» (vuelve a entrar en cada negra, como con sidechain), piano apagado
+// con un motivo en 3-3-2, un pulso de sierra a 3 contra 8 y un bajo a contratiempo; clics y tics de fondo.
+// En la pausa, el bajo se vuelve oscuro y resonante (a lo Lorn) y aparece la melodía, que vuelve arriba en el clímax.
+//
+// Forma: 64 compases (~2 min 10 s; 1 ciclo = 1 compás), en secciones de 8:
+//   I intro · II subida (entra el bombo, muy tapado) · III groove · IV groove abierto · V pausa (sin batería)
+//   VI clímax · VII clímax más arriba · VIII final (la batería se va a mitad)
+// Armonía, 2 compases por acorde: Fa m9 | Re♭ maj7 | La♭ maj7 | Mi♭ add9
+//
+// Ligera: ~55 notas por compás como mucho; una sola reverb (canal 2, tamaño 4: pad, piano, pulso, melodía, palmada e impactos),
+// el resto seco. Sin eco.
+// Instrumentos: piano `steinway` (VCSL, CC0) · bombo, caja, aro y platillo (SFXMint) · pad, bajo, pulso y melodía sintetizados ·
+// charles, tics y subidas con ruido.
+
+// La forma: cada capa recibe su versión de cada sección
+const form = (intro, sube, groove, abierto, pausa, clima, arriba, fin) =>
+  arrange([8, intro], [8, sube], [8, groove], [8, abierto], [8, pausa], [8, clima], [8, arriba], [8, fin]);
+const half2 = "<0!4 1!4>";            // máscara: entra a mitad de la sección
+const half1 = "<1!4 0!4>";            // máscara: se va a mitad de la sección
+const once = s("<x ~!7>");            // primer compás de la sección
+const lastBar = s("<~!7 x>");         // último compás de la sección
+const lastTwo = s("<~!6 x@2>");       // los dos últimos compases, en una sola nota
+
+// ── Armonía ──
+const chords = "<[ab3,c4,g4]!2 [ab3,c4,f4]!2 [g3,c4,eb4]!2 [g3,bb3,f4]!2>";
+// El pad que bombea va a dos voces (la novena o la séptima mayor y otra nota de color): la tríada ya la lleva el pulso,
+// y así cada negra son 2 notas y no 3
+const pumpChords = "<[ab3,g4]!2 [c4,f4]!2 [g3,c4]!2 [g3,f4]!2>";
+const roots = "<f2 f2 db2 db2 ab1 ab1 eb2 eb2>";
+
+// ── Pad de sierra: largo (intro, pausa, final) o bombeando en cada negra ──
+const padLong = note(chords).attack(0.9).sustain(1).release(1.6);
+const padPump = note(pumpChords).struct("x*4").attack(0.14).sustain(1).release(0.08);
+
+// ── Piano: motivo en 3-3-2 y, desde la pausa, una segunda voz aguda entre medias ──
+const piano = note("<[c5 ~ ~ ab4 ~ ~ g4 ~] [c5 ~ ~ ab4 ~ ~ f4 ab4] [c5 ~ ~ ab4 ~ ~ f4 ~] [c5 ~ ~ ab4 ~ ~ f4 eb4] [c5 ~ ~ g4 ~ ~ eb4 ~] [c5 ~ ~ g4 ~ ~ eb4 g4] [bb4 ~ ~ g4 ~ ~ f4 ~] [bb4 ~ ~ g4 ~ ~ ~ ~]>");
+const pianoHi = note("<[~ ~ ~ ~ ~ g5 ~ ~] [~ f5 ~ ~ ~ c6 ~ ~] [~ ~ ~ ~ ~ f5 ~ ~] [~ ab5 ~ ~ ~ f5 ~ ~] [~ ~ ~ ~ ~ eb5 ~ ~] [~ g5 ~ ~ ~ c6 ~ ~] [~ ~ ~ ~ ~ f5 ~ ~] [~ g5 ~ ~ ~ bb5 ~ ~]>");
+
+// ── Pulso: tres notas del acorde en corcheas (3 contra 8) ──
+const arp = note("<[f3 ab3 c4 f3 ab3 c4 f3 ab3] [c4 f3 ab3 c4 f3 ab3 c4 f3] [f3 ab3 db4 f3 ab3 db4 f3 ab3] [db4 f3 ab3 db4 f3 ab3 db4 f3] [eb3 ab3 c4 eb3 ab3 c4 eb3 ab3] [c4 eb3 ab3 c4 eb3 ab3 c4 eb3] [eb3 g3 bb3 eb3 g3 bb3 eb3 g3] [bb3 eb3 g3 bb3 eb3 g3 bb3 eb3]>");
+
+// ── Melodía (FM suave): notas largas en la pausa, el tema en el clímax y más arriba en el segundo ──
+const leadPausa = note("<c6@2 ab5@2 g5@2 f5 g5>");
+const leadB = note("<[c6@3 bb5] ab5 [ab5@3 c6] f5 [g5@3 ab5] eb5 [f5@2 g5@2] bb5>");
+const leadB2 = note("<[c6@3 eb6] [f6@2 eb6@2] [c6@3 db6] [c6@2 ab5@2] [c6@3 eb6] g5 [bb5@2 c6@2] [eb6@2 f6@2]>");
+
+// ── Bajos ──
+const subPump = note(roots).struct("x*4").attack(0.08).sustain(1).release(0.05);
+const bassOff = note(roots).struct("[~ x]*4").attack(0.005).decay(0.16).sustain(0.25).release(0.05).lpf(420).lpq(2).gain(0.2);
+const bassDrop = note(roots).struct("[~ x ~ x ~ x ~ [x x]]").attack(0.005).decay(0.16).sustain(0.25).release(0.05).lpf(520).lpq(2).gain(0.2);
+const bassLorn = note(roots).struct("[x ~ ~ x ~ ~ x ~]").attack(0.01).decay(0.35).sustain(0.5).release(0.15)
+  .lpf("<180 220 270 330 400 480 580 700>").lpq(8).gain(0.2);
+
+// ── Batería ──
+const kick = s("x*4");
+const clap = s("[~ x]*2");
+const rim = s("<[~ ~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~ ~ ~ ~] [~ ~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~ x ~ ~]>");
+const hatsOff = s("[~ white]*4");
+const hats3 = s("[~ white white white]!3 [~ white white ~]");   // sin la última semicorchea (la más floja)
+const ticks = s("white*16").degradeBy(0.75);
+
+stack(
+  // Aire: ruido rosa muy filtrado, siempre
+  s("pink").attack(0.05).sustain(1).release(0.05).hpf(5000).lpf(9000).gain(0.014),
+
+  // Pad
+  form(padLong.lpf(650).gain(0.07),
+       padPump.lpf("<700 750 800 850 900 950 1000 1100>").gain(0.065),
+       padPump.lpf(1200).gain(0.065),
+       padPump.lpf(1500).gain(0.065),
+       padLong.lpf("<900 1100 1300 1500 1800 2100 2500 3000>").gain(0.08),
+       padPump.lpf(2200).gain(0.07),
+       padPump.lpf(2600).gain(0.075),
+       padLong.lpf("<1500 1300 1100 950 800 700 600 500>").gain(0.07))
+    .s("sawtooth").orbit(2).room(0.45).size(4),
+
+  // Piano (Steinway), apagado; se abre poco a poco
+  form(piano.lpf(1400), piano.lpf(1700), piano.lpf(2000), piano.lpf(2200),
+       piano.lpf(2600), piano.lpf(2400), piano.lpf(2600), piano.lpf(1600))
+    .s("steinway").velocity(0.32).orbit(2).room(0.5).size(4).pan(0.46).gain(0.45),
+  form(silence, silence, silence, silence, pianoHi, pianoHi, pianoHi, silence)
+    .s("steinway").velocity(0.26).lpf(3000).orbit(2).room(0.55).size(4).pan(0.6).gain(0.4),
+
+  // Pulso de sierra: entra con el groove y se va abriendo; en la pausa sube hacia el clímax
+  form(silence, silence,
+       arp.lpf(sine.range(500, 900).slow(8)),
+       arp.lpf(sine.range(800, 1600).slow(8)),
+       arp.lpf("<450 550 650 800 950 1150 1400 1700>"),
+       arp.lpf(sine.range(1400, 2600).slow(8)),
+       arp.lpf(sine.range(1800, 3200).slow(8)),
+       arp.lpf("<1400 1200 1000 850 700 600 500 400>"))
+    .s("sawtooth").attack(0.002).decay(0.12).sustain(0).release(0.03).lpq(4)
+    .orbit(2).room(0.3).size(4).pan(sine.range(0.35, 0.65).slow(4)).gain(0.085),
+
+  // Melodía
+  form(silence, silence, silence, silence, leadPausa.gain(0.05), leadB.gain(0.075), leadB2.gain(0.08), silence)
+    .s("sine").fmh(2).fmi(0.9).attack(0.05).decay(0.4).sustain(0.6).release(0.9).lpf(4500).vib(4.5).vibmod(0.08)
+    .orbit(2).room(0.5).size(4).pan(0.52),
+
+  // Sub (seno) que bombea con el bombo, y bajo de sierra: a contratiempo, oscuro y resonante en la pausa, más movido en el clímax
+  form(silence, subPump.mask(half2), subPump, subPump, silence, subPump, subPump, subPump.mask(half1))
+    .s("sine").gain(0.3),
+  form(silence, bassOff.mask(half2).lpf("<260 260 260 260 260 320 380 440>"), bassOff, bassOff,
+       bassLorn, bassDrop, bassDrop, bassOff.mask(half1))
+    .s("sawtooth"),
+
+  // Bombo (SFXMint) a negras: en la subida entra muy tapado y se va abriendo
+  form(silence, kick.lpf("<150 180 210 250 290 340 400 460>"), kick.lpf(520), kick.lpf(520),
+       silence, kick.lpf(560), kick.lpf(560), kick.mask(half1).lpf(520))
+    .s("sfx_acoustic_drum_kit_kick_01").gain(1.1),
+  // Palmada (caja corta con reverb) en el 2 y el 4
+  form(silence, silence, clap, clap, silence, clap, clap, clap.mask(half1))
+    .s("sfx_acoustic_drum_kit_snare_01").speed(1.1).hpf(400).lpf(6000).orbit(2).room(0.35).size(4).pan(0.48).gain(0.42),
+  // Aro: un par de clics desplazados
+  form(silence, rim.mask(half2), rim, rim, silence, rim, rim, silence)
+    .s("sfx_acoustic_drum_kit_snare_cross_stick_01").hpf(700).lpf(5000).pan(0.34).gain(0.16),
+  // Charles: a contratiempo y luego en semicorcheas con acento
+  form(silence, hatsOff.mask(half2).gain(0.03), hatsOff.gain(0.05), hats3.gain("[0 0.02 0.055 0.025]*4"),
+       silence, hats3.gain("[0 0.025 0.065 0.03]*4"), hats3.gain("[0 0.025 0.07 0.03]*4"), hatsOff.mask(half1).gain(0.045))
+    .decay(0.035).sustain(0).hpf(7500).lpf(11000).pan(0.58),
+  // Charles abierto en el clímax
+  form(silence, silence, silence, silence, silence, s("[~ ~ ~ ~ ~ ~ ~ white]"), s("[~ ~ ~ white ~ ~ ~ white]"), silence)
+    .decay(0.22).sustain(0).hpf(6000).lpf(11000).pan(0.62).gain(0.045),
+  // Tics sueltos (Ital Tek): clics de ruido muy cortos repartidos por el estéreo
+  form(silence, ticks, silence, ticks, ticks, silence, silence, ticks.mask(half1))
+    .decay(0.006).sustain(0).hpf(3000).pan(rand).gain(0.08),
+
+  // Impactos (Lorn): golpe grave al entrar el groove, la pausa y el clímax; platillo al entrar groove y clímax
+  form(silence, silence, once, silence, once, once, silence, silence)
+    .s("sine").note("f1").attack(0.005).decay(2.5).sustain(0).gain(0.45),
+  form(silence, silence, once, silence, once, once, silence, silence)
+    .s("sfx_acoustic_drum_kit_kick_01").speed(0.55).lpf(400).orbit(2).room(0.4).size(4).gain(0.8),
+  form(silence, silence, once, silence, silence, once, once, silence)
+    .s("sfx_acoustic_drum_kit_crash_01").hpf(500).lpf(8000).pan(0.4).gain(0.18),
+  // Subidas de ruido: un compás antes del groove, dos antes del clímax
+  form(silence, lastBar.attack(1.9), silence, silence, lastTwo.attack(3.9), silence, silence, silence)
+    .s("white").sustain(1).release(0.05).hpf(2500).lpf(9000).gain(0.05)
+).cpm(118 / 4)

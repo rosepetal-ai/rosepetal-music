@@ -64,6 +64,12 @@ function scanSamples() {
       banks[name] = [di + '/' + rel.split(path.sep).map(encodeURIComponent).join('/')];
       continue;
     }
+    // Texturas preparadas a mano (samples/Texturas/…): cada archivo es su propio banco, con su nombre tal cual (dd_resonancia…)
+    if (/(^|[\\/])texturas[\\/]/i.test(rel)) {
+      const name = path.basename(rel).replace(AUDIO, '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+      banks[name] = [di + '/' + rel.split(path.sep).map(encodeURIComponent).join('/')];
+      continue;
+    }
     // Instrumentos afinados de VCSL: VCSL/<instrumento>/<instrumento>_<nota>.wav → banco <instrumento> con una muestra por nota
     // (en el nombre, la «s» marca el sostenido: steinway_Fs4.wav = Fa#4). Strudel elige la muestra más cercana y la transpone.
     const pitched = /(^|[\\/])vcsl[\\/]([^\\/]+)[\\/][^\\/]*_([A-G]s?-?\d)\.\w+$/i.exec(rel);

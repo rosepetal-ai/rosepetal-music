@@ -1,0 +1,204 @@
+// Rosepetal Music · 09 · Órbita lenta
+// Electrónica espacial con pulso, pensada como BSO para animaciones cortas: 120 BPM, Re mayor con toques lidios, sobre un
+// pedal grave de Re. Empujan el bombo a negras, la palmada con reverb, los charles, un bajo a contratiempo y la secuencia
+// de sierra en semicorcheas (escuela de Berlín); arriba, el salterio de arco con el tema, piano a lo lejos y estrellas FM.
+// Cada sección empieza en un múltiplo de 8 compases (16 s) y con un golpe (bombo grave, platillo y a veces un boom), para
+// poder cortar ahí en el montaje. Antes de la cumbre y del final hay subida de ruido, platillo al revés y un tiempo de hueco.
+//
+// Forma: 60 compases (2 min 00 s justos; 1 ciclo = 1 compás = 2 s), siete secciones de 8 compases y un final de 4:
+//   0:00 I intro       zumbido, viento, estrellas y campanillas; a los 8 s entran el latido y la secuencia; subida al final
+//   0:16 II despegue   ▶ boom + platillo. Bombo a negras (se va abriendo), charles a contratiempo, sub y el tema del salterio;
+//                       a los 24 s entran la palmada y el bajo
+//   0:32 III órbita    ▶ platillo. Batería completa (charles en corcheas, aro), piano; redoble de toms al final
+//   0:48 IV subida     ▶ boom + platillo. Sin bombo: latido, piano y la secuencia que se va abriendo; redoble de caja desde
+//                       0:56, subida de ruido, platillo al revés y un tiempo de hueco antes de la cumbre
+//   1:04 V cumbre      ▶ boom + platillo (el «drop»): todo abierto, el tema en 3-3-2, segunda voz arriba, bajo más movido
+//   1:20 VI cumbre II  ▶ platillo. Más brillo y charles abiertos; redoble de toms al final
+//   1:36 VII regreso   ▶ platillo. A los 1:44 se van palmada, aro y bajo; bombo y filtros se cierran; subida, platillo al
+//                       revés y hueco
+//   1:52 VIII final    ▶ boom + platillo: acorde de Re maj9 (pad, salterio, piano), campanillas y estrellas; se apaga a los 2:00
+// Armonía, 2 compases por acorde: Re maj9 | Sol maj7(#11) | Si m(add9) | Mi m7, siempre sobre el pedal de Re.
+//
+// Ligera: ~55 notas por compás como mucho; una sola reverb (canal 2, tamaño 6) para todo lo que suena «lejos»; el resto seco.
+// Sin eco.
+// Instrumentos: salterio de arco `psalterio` y piano `steinway` (VCSL, CC0) · bombo, caja, aro, tom, platillo y campanillas
+// de viento (SFXMint) · pads, zumbido, sub, bajo, secuencia y estrellas (campanas FM) sintetizados · charles, tics, viento
+// y subidas con ruido.
+
+// La forma: cada capa recibe su versión de cada sección (siete de 8 compases y el final de 4)
+const form = (intro, despegue, orbita, subida, cumbre, cumbre2, regreso, fin) =>
+  arrange([8, intro], [8, despegue], [8, orbita], [8, subida], [8, cumbre], [8, cumbre2], [8, regreso], [4, fin]);
+const half2 = "<0!4 1!4>";             // máscara: entra a mitad de la sección
+const half1 = "<1!4 0!4>";             // máscara: se va a mitad de la sección
+const gap = "<1!7 [1 1 1 0]>";         // máscara: calla el último tiempo de la sección (el hueco antes del golpe)
+const fillRoom = "<1!7 [1 0]>";        // máscara: deja sitio al redoble de toms (dos últimos tiempos)
+const hit = "<[0 1!15] 1!7>";          // máscara: calla la primera semicorchea de la sección (la tapa el golpe)
+const once = s("<x ~!7>");             // primer compás de la sección
+const lastBar = s("<~!7 x>");          // último compás de la sección
+const lastTwo = s("<~!6 x@2>");        // los dos últimos compases, en una sola nota
+const lastFour = s("<~!4 x@4>");       // los cuatro últimos compases, en una sola nota
+const twoBefore = s("<~!6 x ~>");      // dos compases antes del final (el platillo al revés dura 4 s y acaba en el golpe)
+
+// ── Armonía: pad medio (sierra), halo agudo (triángulo) y fundamentales ──
+const pad = note("<[a3,c#4,e4,f#4] [b3,c#4,f#4,a4] [b3,d4,f#4,c#5] [g3,b3,d4,f#4]>").slow(2).attack(1.2).sustain(1).release(2.5);
+const halo = note("<[e5,a5,f#6] [f#5,b5,c#6] [d5,f#5,c#6] [e5,g5,b5]>").slow(2).attack(1.5).sustain(1).release(3);
+const roots = "<d2 d2 g1 g1 b1 b1 e2 e2>";
+const drone = note("[d2,a2]").slow(8).attack(2).sustain(1).release(5);
+const wind = s("pink").slow(2).attack(1.5).sustain(1).release(1.5);
+
+// ── Secuencia: el Re grave como pedal y notas del acorde, en semicorcheas ──
+const seq = note("<[d3 a3 c#4 a3 e4 a3 c#4 a3 d3 a3 c#4 a3 f#4 a3 e4 a3]!2 [d3 b3 c#4 b3 f#4 b3 c#4 b3 d3 b3 c#4 b3 a4 b3 f#4 b3]!2 [d3 b3 d4 b3 f#4 b3 d4 b3 d3 b3 d4 b3 c#5 b3 f#4 b3]!2 [d3 g3 b3 g3 e4 g3 b3 g3 d3 g3 b3 g3 f#4 g3 e4 g3]!2>");
+
+// ── Salterio: el tema en blancas, el mismo tema en 3-3-2 para la cumbre y una segunda voz larga por encima ──
+const theme = note("<f#5 [e5 a5] f#5 [b5 c#6] b5 [a5 f#5] g5 [f#5 e5]>");
+const hook = note("<[f#5@3 e5@3 a5@2] [a5@3 f#5@3 e5@2] [f#5@3 b5@3 c#6@2] [c#6@3 b5@3 a5@2] [b5@3 a5@3 f#5@2] [f#5@3 e5@3 d5@2] [g5@3 f#5@3 e5@2] [e5@3 f#5@3 a5@2]>");
+const high = note("<a5 [f#5 c#6] a5 [d6 e6] d6 [c#6 a5] b5 [a5 g5]>");
+
+// ── Piano a lo lejos: una o dos notas por compás, a contratiempo ──
+const piano = note("<[~ a5 ~ ~ ~ f#5 ~ ~] [~ e5 ~ ~ ~ ~ ~ ~] [~ f#5 ~ ~ ~ b5 ~ ~] [~ c#6 ~ ~ ~ ~ ~ ~] [~ d6 ~ ~ ~ b5 ~ ~] [~ f#5 ~ ~ ~ ~ ~ ~] [~ g5 ~ ~ ~ e5 ~ ~] [~ f#5 ~ ~ ~ ~ ~ ~]>");
+
+// ── Estrellas: campanitas FM inarmónicas, sueltas y repartidas por el estéreo ──
+const stars = note("<[a6 e6 f#6 c#7 b6 e7 a6 d7] [f#6 b6 e6 a6 c#7 f#6 d7 b6]>");
+
+// ── Bajos: sub de seno que bombea con el bombo y bajo de sierra a contratiempo (más movido en la cumbre) ──
+const subPump = note(roots).struct("x*4").attack(0.08).sustain(1).release(0.05);
+const subHalf = note(roots).struct("x*2").attack(0.08).sustain(1).release(0.05);   // en la cumbre, a blancas (menos notas)
+const bassOff = note(roots).struct("[~ x]*4");
+const bassRun = note(roots).struct("[~ x ~ x ~ x ~ [x x]]");
+
+// ── Batería ──
+const kick4 = s("x*4");
+const kickPush = s("<x*4 [x x x [x ~ ~ x]]>");     // cada dos compases, una semicorchea que empuja
+const beat = s("[x x ~ ~ ~ ~ ~ ~]*2");              // latido «pum-pum»
+const clap = s("[~ x]*2");
+const rim = s("<[~ ~ ~ ~ ~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~] [~ ~ ~ x ~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~]>");
+const hatsOff = s("[~ white]*4");
+const hats8 = s("white*8");
+const ticks = s("white*16").degradeBy(0.75);
+const roll = s("<~ ~ ~ ~ [x*8] [x*8] [x*16] [x!12 ~!4]>"); // redoble de la subida: corcheas, semicorcheas y hueco
+const toms = s("<~!7 [~ ~ ~ ~ ~ ~ ~ ~ x ~ x ~ x x x x]>"); // redoble de toms en los dos últimos tiempos de la sección
+
+stack(
+  // Viento solar: ruido rosa con un filtro que va y viene; crece en la subida
+  form(wind.lpf(sine.range(400, 1800).slow(8)).gain(0.03), wind.lpf(1200).gain(0.018), wind.lpf(1200).gain(0.016),
+       wind.lpf("<600 800 1000 1300 1700 2200 2800 3500>").gain(0.03), wind.lpf(1400).gain(0.016), wind.lpf(1400).gain(0.016),
+       wind.lpf(sine.range(400, 1800).slow(8)).gain(0.022),
+       s("<pink@2 ~ ~>").attack(0.05).sustain(1).release(3).lpf(900).gain(0.025))
+    .hpf(250).pan(sine.range(0.3, 0.7).slow(14)),
+
+  // Zumbido: pedal de Re (Re2 + La2); en el final se apaga
+  form(drone.gain(0.12), drone.gain(0.1), drone.gain(0.09), drone.gain(0.12), drone.gain(0.09), drone.gain(0.09), drone.gain(0.1),
+       note("<[d2,a2]@2 ~ ~>").attack(0.3).sustain(1).release(3.5).gain(0.08))
+    .s("triangle").lpf(500).vib(0.2).vibmod(0.05),
+
+  // Sub que bombea con el bombo; en el final, una sola nota larga
+  form(silence, subPump, subPump, silence, subHalf, subHalf, subPump.mask(half1),
+       note("<d2@2 ~ ~>").attack(0.01).decay(4).sustain(0).release(0.5))
+    .s("sine").gain(0.28),
+  // Bajo de sierra a contratiempo
+  form(silence, bassOff.mask(half2), bassOff, silence, bassRun, bassRun, bassOff.mask(half1), silence)
+    .s("sawtooth").attack(0.005).decay(0.16).sustain(0.25).release(0.05).lpf(450).lpq(2).gain(0.2),
+
+  // Pad medio: se abre hacia la cumbre y se cierra al volver; en el final, el acorde de Re maj9 que se apaga solo
+  form(pad.lpf(500).gain(0.05), pad.lpf(850).gain(0.055), pad.lpf(1200).gain(0.06),
+       pad.lpf("<900 1050 1200 1400 1650 1950 2300 2700>").gain(0.065), pad.lpf(2100).gain(0.065), pad.lpf(2500).gain(0.065),
+       pad.lpf("<1600 1400 1200 1000 850 700 600 500>").gain(0.055),
+       note("<[d3,a3,c#4,e4,f#4]@3 ~>").attack(0.01).decay(5).sustain(0).release(2).lpf(2400).gain(0.08))
+    .s("sawtooth").vib(0.3).vibmod(0.05).orbit(2).room(0.6).size(6).pan(0.4),
+  // Halo agudo
+  form(silence, halo.gain(0.022), halo.gain(0.026), halo.gain(0.032), halo.gain(0.036), halo.gain(0.036), halo.gain(0.024),
+       note("<[a5,e6,f#6]@3 ~>").attack(0.02).decay(6).sustain(0).release(2).gain(0.03))
+    .s("triangle").vib(0.35).vibmod(0.08).lpf(5000).orbit(2).room(0.8).size(6).pan(0.62),
+
+  // Secuencia de sierra: entra tapada en la intro, se abre en la subida, brilla en la cumbre y se cierra al volver
+  form(seq.mask(half2).lpf("<400 400 400 400 450 520 600 700>"),
+       seq.lpf("<750 800 850 900 950 1000 1050 1100>"),
+       seq.lpf(sine.range(1000, 1700).slow(4)),
+       seq.mask(gap).lpf("<600 750 900 1100 1350 1650 2000 2400>"),
+       seq.mask(hit).lpf(sine.range(1600, 2600).slow(4)),
+       seq.mask(hit).lpf(sine.range(1900, 3000).slow(4)),
+       seq.mask(gap).lpf("<1600 1400 1200 1000 850 700 600 500>"),
+       silence)
+    .s("sawtooth").attack(0.002).decay(0.11).sustain(0).release(0.03).lpq(6)
+    .orbit(2).room(0.4).size(6).pan(sine.range(0.3, 0.7).slow(4)).gain(0.062),
+
+  // Salterio de arco (VCSL): el tema en blancas; en la cumbre, el mismo tema en 3-3-2 y más corto; en el final, un acorde
+  form(silence,
+       theme.attack(0.3).release(1.2).gain(0.24),
+       theme.attack(0.3).release(1.2).gain(0.26),
+       theme.attack(0.4).release(1.5).gain(0.26),
+       hook.attack(0.05).release(0.5).gain(0.32),
+       hook.attack(0.05).release(0.5).gain(0.34),
+       theme.attack(0.3).release(1.2).gain(0.24),
+       note("<[f#5,a5,d6]@2 ~ ~>").attack(0.05).release(3).gain(0.3))
+    .s("psalterio").clip(1).hpf(300).lpf(6000).orbit(2).room(0.6).size(6).pan(0.42),
+  // Segunda voz, larga y arriba: a mitad de la subida y en la cumbre
+  form(silence, silence, silence, high.mask(half2).gain(0.16), high.gain(0.18), high.gain(0.22), silence, silence)
+    .s("psalterio").clip(1).attack(0.5).release(1.5).hpf(300).lpf(6000).orbit(2).room(0.8).size(6).pan(0.62),
+
+  // Piano a lo lejos (VCSL Steinway); en el final, el acorde y un Re agudo
+  form(silence, silence, piano.velocity(0.28), piano.mask(half1).velocity(0.24), silence, silence, piano.velocity(0.26),
+       note("<[[d3,a3,e4,f#4,c#5] ~ ~ d6] ~ ~ ~>").velocity(0.42))
+    .s("steinway").lpf(3200).orbit(2).room(0.55).size(6).pan(0.56).gain(0.4),
+
+  // Estrellas: más en la subida; en el final, una cascada que sube
+  form(stars.degradeBy(0.8), stars.degradeBy(0.75), stars.degradeBy(0.7), stars.degradeBy(0.5).mask(gap),
+       stars.degradeBy(0.65), stars.degradeBy(0.6), stars.degradeBy(0.75),
+       note("<[~ d6 f#6 a6 c#7 e7 ~ ~] ~ ~ ~>"))
+    .s("sine").fmh(3.5).fmi(0.5).attack(0.003).decay(1.6).sustain(0).release(1.2).lpf(6000)
+    .pan(rand).orbit(2).room(0.85).size(6).gain(0.045),
+
+  // Bombo (SFXMint) a negras: se abre en el despegue, empuja en la cumbre y se cierra al volver
+  form(silence, kick4.lpf("<380 410 440 470 500 520 540 560>"), kick4.lpf(580), silence,
+       kickPush.lpf(640), kickPush.lpf(640), kick4.mask(gap).lpf("<560 520 480 440 380 320 260 200>"), silence)
+    .s("sfx_acoustic_drum_kit_kick_01").gain(1.1),
+  // Latido (el bombo muy tapado) en la intro y al empezar la subida
+  form(beat.mask(half2), silence, silence, beat.mask(half1), silence, silence, silence, silence)
+    .s("sfx_acoustic_drum_kit_kick_01").lpf(150).gain("[0.8 0.5 0 0 0 0 0 0]*2"),
+  // Palmada (caja con reverb) en el 2 y el 4
+  form(silence, clap.mask(half2), clap, silence, clap, clap, clap.mask(half1), silence)
+    .s("sfx_acoustic_drum_kit_snare_01").speed(1.05).hpf(300).lpf(6000).orbit(2).room(0.4).size(6).pan(0.48).gain(0.42),
+  // Redoble de caja de la subida, que crece y sube un poco de tono
+  form(silence, silence, silence,
+       roll.gain("<0 0 0 0 0.14 0.18 0.24 0.3>").speed("<1 1 1 1 1 1.04 1.08 1.14>").velocity(saw.range(0.6, 1)),
+       silence, silence, silence, silence)
+    .s("sfx_acoustic_drum_kit_snare_01").hpf(400).lpf(5000).orbit(2).room(0.3).size(6).pan(0.52),
+  // Aro: un par de clics desplazados
+  form(silence, silence, rim, silence, silence, silence, rim.mask(half1), silence)
+    .s("sfx_acoustic_drum_kit_snare_cross_stick_01").hpf(700).lpf(5000).pan(0.34).gain(0.16),
+  // Charles: a contratiempo, luego en corcheas con acento; al volver se van apagando
+  form(silence, hatsOff.gain(0.045), hats8.mask(fillRoom).gain("[0.03 0.065]*4"), silence,
+       hats8.mask(fillRoom).gain("[0.035 0.075]*4"), hats8.mask(fillRoom).gain("[0.035 0.075]*4"),
+       hatsOff.mask(gap).gain("<0.05 0.05 0.045 0.04 0.035 0.03 0.025 0.02>"), silence)
+    .decay(0.035).sustain(0).hpf(7500).lpf(11000).pan(0.58),
+  // Charles abierto en la cumbre
+  form(silence, silence, silence, silence, s("[~ ~ ~ ~ ~ ~ ~ white]").mask(fillRoom),
+       s("[~ ~ ~ white ~ ~ ~ white]").mask(fillRoom), silence, silence)
+    .decay(0.22).sustain(0).hpf(6000).lpf(11000).pan(0.62).gain(0.045),
+  // Tics sueltos: clics de ruido muy cortos en la intro y la subida
+  form(ticks.mask(half2), silence, silence, ticks.mask(gap), silence, silence, silence, silence)
+    .decay(0.006).sustain(0).hpf(3000).pan(rand).gain(0.07),
+  // Redoble de toms (SFXMint, afinado con la velocidad) al final de la órbita y de las dos cumbres
+  form(silence, silence, toms, silence, toms, toms, silence, silence)
+    .s("sfx_acoustic_drum_kit_floor_tom_01").speed("[1 1 1 1 1 1 1 1 1.6 1.6 1.45 1.45 1.3 1.2 1.1 1]")
+    .release(0.5).hpf(70).lpf(5000).orbit(2).room(0.3).size(6).pan(0.45).gain(0.5),
+
+  // Golpes para cortar en el montaje: boom grave (0:16, 0:48, 1:04 y 1:52) y bombo grave con reverb y platillo
+  // al empezar cada sección desde el despegue
+  form(silence, once, silence, once, once, silence, silence, once)
+    .s("sine").note("d1").attack(0.005).decay(2.5).sustain(0).gain(0.45),
+  form(silence, once, once, once, once, once, once, once)
+    .s("sfx_acoustic_drum_kit_kick_01").speed(0.55).lpf(400).orbit(2).room(0.4).size(6).gain(0.8),
+  form(silence, once, once, once, once, once, once, once)
+    .s("sfx_acoustic_drum_kit_crash_01").hpf(500).lpf(8000).orbit(2).room(0.2).size(6).pan(0.4).gain(0.2),
+  // Subidas de ruido: un compás antes del despegue y de la órbita, cuatro antes de la cumbre y dos antes del final
+  form(lastBar.attack(1.9), lastBar.attack(1.9), silence, lastFour.attack(7.8), silence, silence, lastTwo.attack(3.9), silence)
+    .s("white").sustain(1).release(0.05).hpf(2500).lpf(9000).gain(0.05),
+  // Platillo al revés (SFXMint): crece durante 4 s y acaba justo en el golpe de la cumbre y en el del final
+  form(silence, silence, silence, twoBefore, silence, silence, twoBefore, silence)
+    .s("sfx_acoustic_drum_kit_crash_01").speed(-1).begin(1 / 3).hpf(400).lpf(9000)
+    .orbit(2).room(0.3).size(6).pan(0.58).gain(0.22),
+  // Campanillas de viento (SFXMint) al empezar y en el golpe final
+  form(once, silence, silence, silence, silence, silence, silence, once)
+    .s("sfx_wind_chimes_settle_01").hpf(1500).lpf(9000).orbit(2).room(0.5).size(6).pan(0.62).gain(0.22)
+).cpm(120 / 4)
