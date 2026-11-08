@@ -116,6 +116,23 @@ Para afinar un sample melódico en Strudel: `speed = 2^(semitonos / 12)` desde s
 
 Sin estos archivos, las capas de texturas de la pieza 10 no suenan.
 
+## Pistas de «Quiet Beauty» (Suno) · no está en el repositorio
+
+La pieza 11 recrea «Quiet Beauty», una canción hecha con Suno. Cuando una textura de Suno no se consigue con síntesis, se usa la original: un trozo de su pista separada, recortado compás a compás y estirado a la duración exacta del compás de la pieza con `tools/analisis/10_samples_suno.py`. Va en `samples/Suno/` (cada archivo es un banco con su nombre) y git no lo sube: sale de las pistas de la canción, que no están en el repositorio.
+
+Para rehacerlos hacen falta las pistas que exporta Suno y la comparación de la pieza (`06_comparar.py`, que alinea los compases):
+
+```bash
+$PY tools/analisis/10_samples_suno.py "$P" renders/11/v2/comparacion samples/Suno qb_maraca=percussion:70-71 qb_maraca_suave=percussion:6-7 --lufs -20
+```
+
+| Banco Strudel | Sale de | Uso | SHA-256 |
+|---|---|---|---|
+| `qb_maraca` | pista «Percussion», compases 70–71 (bucle de dos compases, subido +6,4 dB) | maraca de A, B, el parón, el final y el cierre | `12ff8f6bae0617ea7e19ed62f8704aa3e4e3a46ee5d92d4392bd8af5568cf48e` |
+| `qb_maraca_suave` | pista «Percussion», compases 6–7 (subido +7,6 dB) | maraca del final de la intro | `e02c3be6308816227df76f761d55ee20d79cdfe36c984ee7c2507f65085f6673` |
+
+Sin estos archivos, la maraca de la pieza 11 no suena; el resto sí.
+
 ## Missing
 
 - **Nota suelta de piano:** SFXMint solo tiene acordes; se usa el Steinway de VCSL. Para generarla en SFXMint Studio: https://sfxmint.com/s/e7e5493175

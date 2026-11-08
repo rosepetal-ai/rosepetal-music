@@ -4,52 +4,70 @@
 // Basic Pitch: notas de bajo, teclado, guitarra, cuerdas y metales · HPCP de Essentia: acordes).
 //   Tempo 80,67 BPM (Essentia/librosa marcan 161,5: el doble), Re mayor con préstamos (La m, Do, Fa), compás de 2,975 s.
 //   Casi instrumental (la voz está prácticamente muda). 77 compases, ~3 min 49 s:
-//   0:00  intro      (8)  Fa | Fa | Re | Re | La m→Do | Mi m7 | Si m7/Re | Re7sus4 — piano, pad y la guitarra con notas repetidas;
-//                         la percusión y la batería entran al final
-//   0:24  A          (16) bucle La m7 | Mi m7 (o Sol) | Re | Re — groove con bajo; la melodía del piano (Si–La–Mi–Fa#–Re)
-//                         en la segunda mitad, la guitarra en trémolo (Fa#/Sol) y las cuerdas asoman
-//   1:12  B          (16) el segundo acorde del bucle va cambiando: Mi m7, Si m7, Sol, Do — entran las cuerdas (nota larga
-//                         por compás) y los metales; la guitarra hace un ostinato Si–Fa#; el piano baja
+//   0:00  intro      (8)  Fa | Fa | Re | Re | La m→Do | Mi m7 | Si m7/Re | Re7sus4 — piano en semicorcheas, pad y la guitarra
+//                         con notas repetidas; la maraca y la batería entran al final, suaves
+//   0:24  A          (16) bucle La m7 | Mi m7 (o Sol) | Re | Re — el bajo sostiene la fundamental; la melodía del piano
+//                         (Si–La–Mi–Fa#–Re) en la segunda mitad, la guitarra a ratos y las cuerdas asoman
+//   1:12  B          (16) el segundo acorde del bucle va cambiando: Mi m7, Si m7, Sol, Do — entran las cuerdas y los
+//                         metales; la guitarra hace un ostinato Si–Fa# desde la mitad
 //   2:00  B2         (16) la guitarra sube (Re6, Mi6, Fa#6) y vuelve la melodía del piano («Re–Si–La–Si»)
-//   2:48  parón      (8)  sin bajo: Sol | La | Sol | La | La | La m→Sol | Mi m→Si m | Re — el piano repite Si/Fa# en corcheas,
-//                         batería ligera con aro y maraca
-//   3:12  final      (8)  todo el grupo, maraca fuerte, los metales bajan Do–Si–La
-//   3:36  cierre     (5)  Fa | Do→Mi m | Re | Re | Si m7/Re — sin batería
+//   2:48  parón      (8)  sin bajo: Sol | La | Sol | La | La | La m→Sol | Mi m→Si m | Re — el piano repite Si/Fa# con
+//                         puntillo, batería ligera con aro y maraca
+//   3:12  final      (8)  todo el grupo, maraca fuerte al final, los metales bajan Do–Si–La
+//   3:36  cierre     (5)  Fa | Do→Mi m | Re | Re | Si m7/Re — un último golpe y sin batería
 //
-// Instrumentos: piano `steinway` (VCSL, CC0) · cuerdas: salterio de arco `psalterio` (VCSL) para la nota larga y un pad de
-// sierra · guitarra y metales sintetizados · pad de triángulo · bajo de triángulo · bombo, caja, aro y platillo (SFXMint) ·
-// charles y maraca con ruido. Una sola reverb (canal 2, tamaño 4), sin eco. ~55 notas por compás como mucho.
+// Segunda fase (comparación capa a capa con las pistas de Suno, tools/analisis/06_comparar.py): el bajo sostiene notas
+// en vez de corcheas, el piano parte los acordes en semicorcheas, el pad y las cuerdas llevan las voces de Suno compás a
+// compás, y niveles, filtros y estéreo están medidos contra Suno sección a sección. Ojo: Suno no lleva un tempo fijo
+// (~80,3 BPM hasta el compás 35 y ~80,76 después); la pieza va recta a 80,67.
+//
+// Instrumentos: piano `steinway` (VCSL, CC0) · cuerdas: pad de sierra y salterio de arco `psalterio` (VCSL) · pad
+// supersaw · bajo supersaw muy filtrado · guitarra y metales sintetizados · bombo, caja, aro y platillo (SFXMint) ·
+// charles de ruido · maraca: la de Suno (`qb_maraca`, en samples/Suno, que no se sube: ver SOUNDS.md; sin ella todo
+// lo demás suena). Una sola reverb (canal 2, tamaño 4), sin eco. 55 notas por compás como mucho.
+// Cada capa lleva .tag('nombre') (no cambia el sonido) para renderizarla sola con render-lote.html.
 
 const form = (intro, a1, b1, b2, brk, fin, out) =>
   arrange([8, intro], [16, a1], [16, b1], [16, b2], [8, brk], [8, fin], [5, out]);
 const once = s("<x ~!15>");            // primer compás de la sección
 const lastBar = s("<~!15 x>");         // último compás de una sección de 16
 
-// ── Piano: acordes (mano izquierda) ──
-const pIntro = note("<[f2,c3,g3,a3,c4] [f2,c3,g3,a3,c4] [d3,a3,e4,f#4] [d3,a3,e4,f#4] [[a2,e3,g3,c4] [c3,g3,b3,e4]] [e3,g3,b3,d4] [d3,f#3,a3,b3] [d3,g3,a3,c4]>");
-const pA = note("<[a2,e3,g3,c4] [e3,g3,b3,d4] [d3,a3,e4,f#4] [d3,a3,e4,f#4] [a2,e3,g3,c4] [g2,d3,a3,b3] [d3,a3,e4,f#4] [d3,a3,e4,f#4] [a2,e3,g3,c4] [e3,g3,b3,d4] [d3,a3,e4,f#4] [d3,a3,e4,f#4] [a2,e3,g3,c4] [[g2,d3,a3,b3] [e3,g3,b3,d4]] [d3,a3,e4,f#4] [d3,a3,e4,f#4]>");
-const pB1 = note("<[a2,e3,g3,c4] [e3,g3,b3,d4] [d3,a3,e4,f#4] [d3,a3,e4,f#4] [a2,e3,g3,c4] [b2,f#3,a3,d4] [d3,a3,e4,f#4] [d3,a3,e4,f#4] [a2,e3,g3,c4] [g2,d3,a3,b3] [d3,a3,e4,f#4] [d3,a3,e4,f#4] [a2,e3,g3,c4] [c3,g3,b3,e4] [d3,a3,e4,f#4] [d3,a3,e4,f#4]>");
-const pB2 = note("<[a2,e3,g3,c4] [e3,g3,b3,d4] [d3,a3,e4,f#4] [d3,a3,e4,f#4] [a2,e3,g3,c4] [e3,g3,b3,d4] [d3,a3,e4,f#4] [d3,a3,e4,f#4] [a2,e3,g3,c4] [e3,g3,b3,d4] [g2,d3,a3,b3] [d3,a3,e4,f#4] [a2,e3,g3,c4] [c3,g3,b3,e4] [d3,a3,e4,f#4] [d3,a3,e4,f#4]>");
-const pBrk = note("<[g2,d3,a3,b3] [a2,e3,b3,e4] [g2,d3,a3,b3] [a2,e3,b3,e4] [a2,e3,b3,e4] [[a2,e3,g3,c4] [g2,d3,a3,b3]] [[e3,g3,b3,d4] [b2,f#3,a3,d4]] [d3,a3,e4,f#4]>");
-const pFin = note("<[a2,e3,g3,c4] [e3,g3,b3,d4] [d3,a3,e4,f#4] [d3,a3,e4,f#4] [a2,e3,g3,c4] [g2,d3,a3,b3] [d3,a3,e4,f#4] [d3,g3,a3,c4]>");
-const pOut = note("<[f2,c3,g3,a3,c4] [[c3,g3,b3,e4] [e3,g3,b3,d4]] [d3,a3,e4,f#4] [d3,a3,e4,f#4] [d3,f#3,a3,b3]>");
-const strum = "[x ~ ~ ~ ~ x ~ ~]";     // golpe en el 1 y en el «y» del 3
+// ── Piano: acompañamiento en semicorcheas ──
+// En Suno el piano no toca acordes en bloque: parte el acorde en semicorcheas, muchas veces alternando dos notas
+// (Fa#4–La3 en Re, Si3–Si4 en Mi m). Transcrito compás a compás de la pista de teclado (tools/analisis/11_arpegio.py:
+// en cada semicorchea, la nota más fuerte entre La2 y Do5).
+const ostIntro = note("<[~@2 c4@2 a4@2 c4 a4 c5@2 c4 c5 c5 c4 c5 c5] [c5 c5 c5 c4 c5 c5 g4 c5 c5 c5 c4@2 g4 c5 f4 c5] [c5@2 g4 b3 c5@2 f#4 c5@2 f#4 c5 f#4@3 g4 f#4] [f#4@2 f#4@3 f#4@3 f#4@2 a3 f#4 f#4@2 g4 f#4] [c4 f#4 c4@2 a4@2 c4 a2 c5@2 c4 c5@3 c5@2] [g3 c4 g3@3 b4 g4@2 g4 b4 b3 b4 b4@4] [f#3 b4@2 a2@2 f#4@3 f#3 d3 f#3 d3 f#3@3 f#4] [d3@2 a3 d3 a4 a4 a4 a4 a4 a4 a4 a4 a4 a4@2 c4]>");
+const ostA = note("<[a3 a2 a3@2 c4 a3 a2 c4 a3 c4@2 a3 a4@2 a4 a4] [b3 e3@3 b2 b2 g3@2 b3 b2@2 b2 b3@2 b3 b3] [f#3@2 d3 a3 d3 f#3@2 f#4 a2@2 a3 d3@3 a3 a3] [~@2 a3 f#4 a3 d3 a3 a3 f#4 a3 a3 a4@3 d3 a4] [c4 a3 a4 a4 a4 a4 a4 c4 a4 c4 c4 a3 c4 c4 a2 c4] [c4 d3 c4 g3@2 b3 g3 d3 g3 b3@2 b3 b3 d4@2 c#4] [d4 f#4 f#3 d4 f#4 f#4 f#4 f#4 f#4 a3 f#4 f#4 f#4 a3@2 a3] [f#4 f#4@2 f#4 a3 a3 f#4 a3 a3 f#4@2 a3 f#4 a3 f#4 f#4] [f#4 a2 a3 a2 f#4 a3 f#4 c4 c4 e4 c4 c4 e4@3 b4] [~ b3 b3@2 f#4 b3 b2@2 e4@3 b4 b2 b3@2 b3] [d3 f#3 d3 a4 f#4 f#4 f#4 f#4 a3 f#4 f#4 a3@2 a3 a3 d3] [f#4@2 a3 f#4 a4 a3 f#4 a3 a3 f#4@2 a3 f#4 f#4 a3 a3] [a2 e4 a3 e4 f#4 e4 f#4 e4 c5 e4 a3 c4 a3 e4 a3 b4] [b3 b2@2 b2 b4 b3 b3 b4@2 b3@2 b4@2 b4 b4 b3] [d4 d4@2 d3 f#4 a3@2 f#3 a3 f#4 f#4 a3@2 f#4 f#4 d3] [f#4 f#4 f#4 f#4@3 f#4 f#4 a3 a3 d3@2 f#4 d3 a3 a2]>");
+const ostB1 = note("<[a3 a3 a4 c4 c4 c4 c5 c4 a2 c5@2 a2 c5@2 b4 b4] [b3 b4@2 b3@2 b3 b3 e3@2 b3 b2 b3@3 a4@2] [a3 f#4@3 f#4 a4 f#4 a3 f#4@2 f#4@2 a4@3 f#4] [a4 f#4@2 a4 d3 f#4 a3 f#4 f#4 g4@2 a4 a4 g4 b4@2] [c5 c4 a4 c5@3 c5@3 c4@5 b4@2] [b3 e3 b4@2 g3@4 b2@2 b3 d3@3 a4@2] [d3@3 a4 f#3@2 a3@4 f#4 a3 a3 f#3 a3 f#4] [a3 f#4 a3 a3 d3 f#4@2 f#4 f#3 f#4 f#4 f#4 f#4 f#4 f#4 f#4] [f#4 f#4 c4 c5 c4 a3 f#4 f#4 f#4 a3 c5 f#4 e4 f#4 f#4 c4] [b3 b3 b4 b4 b4 b3 d3 b3 b4 b4 b4 b4@2 b3 a4 b3] [a3 f#4 a3 a3 a3 f#4 d4 f#4@2 f#4 f#4 f#4 a3 f#4 f#4 f#4] [f#4 f#4 a3 f#4 a3 b4 f#4 f#4 b4 f#4 b4 b4 f#4 f#4 f#4 f#4] [f#4 b4 f#4 f#4 f#4 f#4@2 f#4 f#4 b4@2 f#4 b4 f#4 c4 f#4] [b4 e4 c4 b4 e4 b3 b4 e4 e4 e4 b4 c3 c3 c4 c3 b4] [b4 b4 b3 f#4 b4 b4 f#4 b4 b4 b4 b4 b4@2 b3 b3 f#4] [b3 b3 f#4 b3 b3 f#4 b3 b3 f#4 b3 f#4 f#4 b3 b4 f#4 f#4]>");
+const ostB2 = note("<[b4 b4 f#4 b4 c4 c4 f#4 c4 c4 c4 a2 a3 b4 f#4 c4 f#4] [b3 b3 b4 b3 b4 b3 b3 b3 b3 b3 b2 b3 b3 e3 b3 e3] [f#3 f#3@2 b4 f#4 f#4 a3 a3 b4 a3 d3 f#4 a3 f#3 a3 f#4] [b4 f#4 b4 f#4 a3 d3 f#4 f#4 a3 d4 f#4 a4 f#4 a4 a4 d3] [e4 c4 c4 a4 e4 c4 c4 a3 c4 a4 a4 c4 c4 a3 a3 c4] [b3 b3@3 b3 b4 e4 b3 b3@2 b3 b3 b3 b3 b3@2] [f#3 f#4 a3 a3 f#3 a3 f#4 a3@2 a3 a3 a3 a3@3 a3] [~ f#4 a3@2 f#4 a3@2 f#4 a3 f#4@3 a4 a3 a4 a3] [c4 a3 e4 e4 c4@2 e4@2 e4 a4 e4@2 a4@3 e4] [b2@3 b3@2 e4 e4 e3@4 b3@2 a4 b4@2] [g3 b3@3 g3@2 g3 b3@2 a4 d3 g3 b4 d3 b3 d4] [f#3 d3 d3@2 a3 a3@2 a2@2 f#4 a3 a3 a3 f#3@3] [a2@2 c4 a3 a3@2 e4 a2@2 e4 c4 c4 e4 c4@2 e4] [c3 e3 g3@2 c4 c4 e4@3 a4 e4@3 g3@3] [d4 b4 d4 d4 d4@2 d4 d3 a4@2 b3 d3 b4 a3 a4 b4] [d4@2 b4@4 b4@2 b4 b4@2 b4@3 b4 b4]>");
+const ostBrk = note("<[a2@2 b4 a2 a2 b4 b4 a4 b4 b4 a4 b4 b4 a4 b4 b4] [a4 b4 b4 a4 b4 b4 b4 b4 b4 b4 b4 b4 a4 b4 b4 a4] [b4 b4 a4 b4 b4 b4 b4 b4 a4 b4 b4 a4 b4 b4 a4 b4] [b4 b4 b4 b4 a4 b4 b4 a4 b4 b4 b4 b4 b4 b4 b4 b4] [c4 b4 b4 b4 b4 b4 a4 b4 b4 b4 b4 b4 c4 a2 b4 a4] [b3 b3 b3 b3 b3 b3 b3 b3 b3 b3 b3 b3 b4 b3 b3 b3] [b3@2 a2 b4 b3 b3 b3 f#3 f#4@2 f#3 a3 d3 f#4 f#3 b4] [f#4@2 f#4 f#4 d3 d3 a3 d3@2 d3 a3 f#4 b4@2 a2 d3]>");
+const ostFin = note("<[~ a2@2 e4 c4@2 a3 e3@2 e4 a3 c4 a3 a2 a3 e4] [a3 e3 a3 a3 e4 e4 e4@2 e3@2 b3 b2@3 e4 e3] [f#3 a3@2 f#3@2 a3@2 a2@2 a3 f#3 f#3 d3 f#3 a2 f#3] [~ f#3 a3 a3 f#3@2 a3 a2@4 a3 a3 d3@2 a2] [e3 a2 a3@2 a3 c4 e3 a2@2 e3@2 c4@2 a3 a3 c4] [d3 a3 g3@2 b3 d3 b3 a3@3 b3@2 d3@3 b3] [f#3@2 a2@4 a2 a3 a3@3 a3 f#3@2 d3@2] [a2 a3 d3 a2 a3@5 a2@3 d3@4]>");
+const ostOut = note("<[c4@2 c4@2 a4@2 c4@2 c5 a4 c4@2 c5@4] [c5@2 c5 c5@2 c5@4 b4@3 g4 b4@3] [f#4@2 a2@5 f#4 d3@2 f#3@2 f#4@2 f#4 a2] [f#4 f#3@5 a2@2 d3@2 d3@3 a2 d3@2] [~@4 a2@12]>");
 
 // ── Piano: melodías (mano derecha), transcritas de la línea superior del teclado ──
 const melA = note("<~ ~ ~ ~ ~ ~ ~ ~ [~ ~ ~ ~ b5@2 b5 ~] [a5 ~ a5 e5 e5@2 e5 f#5] [d5@2 ~ d5 d5 f#5 d5@2] [d5@6 ~ ~] [~ ~ ~ ~ b5@2 b5 ~] [~ a5@3 e5@2 a5 f#5] [e5@2 e5 f#5@3 e5 f#5] [d5 f#5 d5@6]>");
 const melB1 = note("<~ ~ ~ ~ ~ ~ ~ [~ ~ ~ ~ f#5 ~ ~ ~] ~ [~ ~ ~ f#5 ~ ~ ~ ~] [~ a5 ~ f#5 ~ ~ f#5 ~] ~ [~ ~ ~ ~ f#5 ~ ~ ~] [~ e6 ~ e6 e5 ~ e6 ~] ~ ~>");
 const melB2 = note("<~ ~ ~ ~ ~ ~ ~ ~ [d6 ~ ~ b5 ~ a5 b5 ~] [e5@2 e5 b5 ~ a5 b5@2] [d5 ~ ~ b5 ~ a5 b5@2] [d5 f#5 d5 f#5 ~ f#5 d5 c#5] [~ ~ ~ b5 ~ b5 b5 ~] [e5 e5@2 b5 ~ a5 b5 d5] [~ d5 d5 d5 d5 d5 ~ ~] [d5 d5 c#5 d5 c#5 d5 d5 ~]>");
-const melBrk = note("<[c#5 d5 c#5 b5 b5 ~ ~ b5] [~ b5 b5 ~ b5 b5 ~ b5] [b5 ~ b5 b5 ~ b5 b5 ~] [b5 b5 ~ b5 b5 f#5 b5 ~] [f#5 ~ ~ f#5@2 b5 f#5 b5] [b5 ~ b5 b5 ~ b5 b5 ~] [b5 b5 ~ b5 f#5 f#5 b5 b5] [f#5@2 b5@2 f#5 b5 b5 f#5]>");
+// en el parón, Si5/Fa#5 en corcheas con puntillo (de 3 en 3 semicorcheas), como en Suno
+const melBrk = note("<[~ c#5@2 d5 c#5@2 b5 d5@8 b5] [~@2 b5@3 b5@3 b5@3 b5@3 b5@2] [~ b5@3 b5@3 b5@3 b5@3 b5@3] [b5@6 b5@3 b5 f#5 f#5 b5 f#5@3] [~ f#5@5 f#5@2 b5 f#5@3 f#5@2 b5 f#5] [~ b5@3 b5@3 b5@3 b5@3 b5@3] [b5@3 b5@3 b5 b5 f#5@2 f#5@2 b5 f#5@2 b5] [~ f#5@2 b5 f#5@2 b5 f#5@2 f#5@2 f#5 b5@3 b5]>");
 const melOut = note("<[~ ~ ~ ~ c5@2 c5@2] [c5 c5 c5 c5@2 ~ ~ ~] ~ ~ ~>");
 
-// ── Pad (octava 4) ──
-const padIntro = note("<[c4,f4,a4] [c4,f4,a4] [d4,f#4,a4] [d4,f#4,a4] [[c4,e4,a4] [c4,e4,g4]] [d4,g4,b4] [d4,f#4,b4] [c4,d4,g4]>");
-const padA = note("<[c4,e4,g4] [d4,g4,b4] [d4,f#4,a4] [d4,f#4,a4]>");
-const padB1 = note("<[c4,e4,g4] [d4,g4,b4] [d4,f#4,a4] [d4,f#4,a4] [c4,e4,g4] [d4,f#4,b4] [d4,f#4,a4] [d4,f#4,a4] [c4,e4,g4] [d4,g4,b4] [d4,f#4,a4] [d4,f#4,a4] [c4,e4,g4] [e4,g4,b4] [d4,f#4,a4] [d4,f#4,a4]>");
-const padB2 = note("<[c4,e4,g4] [d4,g4,b4] [d4,f#4,a4] [d4,f#4,a4] [c4,e4,g4] [d4,g4,b4] [d4,f#4,a4] [d4,f#4,a4] [c4,e4,g4] [d4,g4,b4] [d4,g4,b4] [d4,f#4,a4] [c4,e4,g4] [e4,g4,b4] [d4,f#4,a4] [d4,f#4,a4]>");
-const padBrk = note("<[d4,g4,b4] [b3,e4,a4] [d4,g4,b4] [b3,e4,a4] [b3,e4,a4] [[c4,e4,a4] [d4,g4,b4]] [[d4,g4,b4] [d4,f#4,b4]] [d4,f#4,a4]>");
-const padFin = note("<[c4,e4,g4] [d4,g4,b4] [d4,f#4,a4] [d4,f#4,a4] [c4,e4,g4] [d4,g4,b4] [d4,f#4,a4] [c4,d4,g4]>");
-const padOut = note("<[c4,f4,a4] [[e4,g4,c5] [d4,g4,b4]] [d4,f#4,a4] [d4,f#4,a4] [d4,f#4,b4]>");
+// ── Pad de sinte: voces sacadas compás a compás de la pista «Synth» de Suno (Basic Pitch sumado por compás) ──
+const synIntro = note("<[c4,g4,c5] [c4,g4,c5] [a3,f#4,c5] [a3,f#4,c5] [a3,c4,f#4] [b3,e4,b4] [f#4,a4,b4,d5] [d4,g4,a4]>");
+const synA = note("<[e3,a3,c4,a4] [e3,b3,a4] [d3,f#3,a3,f#4,a4] [d3,a3,f#4,a4] [a3,c4,a4] [d3,g3,b3,a4] [d3,f#3,b3,f#4] [d3,a3,f#4] [a3,c4,f#4] [b3,f#4,b4] [d3,a3,f#4,b4] [d3,a3,f#4] [a3,c4,e4,g4] [b3,b4,e5] [d3,f#3,a3,f#4,a4] [a3,f#4,a4]>");
+const synB1 = note("<[a3,c4,g4] [g3,b3,b4] [d3,a3,f#4,a4] [d3,a3,f#4,a4] [e3,a3,c4,c5] [b3,a4,b4] [d3,f#3,a3,f#4,a4] [d3,a3,f#4,a4] [a3,c4,f#4,b4] [b3,a4,b4] [d3,a3,d4,f#4,a4] [d3,a3,f#4,b4] [a3,c4,f#4,b4] [b3,e4,b4] [b3,f#4,b4] [b3,f#4,b4,d5]>");
+const synB2 = note("<[a3,c4,f#4,b4] [e3,b3,b4] [d3,f#3,a3,f#4,b4] [d3,a3,f#4,a4,b4] [e3,a3,c4,f#4,b4] [b3,e4,f#4,b4] [f#3,a3,f#4,b4] [a3,f#4,a4,f#5] [a3,c4,e4,a4] [b3,e4,a4,b4] [d3,g3,b3,d4,a4] [d3,f#3,a3,f#4,a4] [a3,c4,e4,a4] [b3,e4,a4,e5] [d3,b3,d4,b4] [b3,f#4,b4]>");
+const synBrk = note("<[e3,g3,b3,b4] [d3,e3,g3,b3] [d3,f#3,b4] [d3,a3,b4] [e3,a3,c4,e4,a4] [d3,g3,b3,a4] [d3,f#3,a3,b3,f#4] [d3,f#3,a3,f#4,a4]>");
+const synFin = note("<[e3,a3,c4] [e3,g3,b3] [d3,f#3,a3,a4] [d3,f#3,a3] [e3,a3,c4,a4] [d3,g3,b3] [d3,f#3,a3] [d3,f#3,a3]>");
+const synOut = note("<[a3,c4,c5] [g4,b4,c5] [f#4,b4] [f#3,f#4] [f#3,f#4]>");
+
+// ── Cuerdas: acordes sostenidos con las voces de la pista de cuerdas de Suno (ver_voces.py), de La3 a Si4 ──
+const cuerA = note("<~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ [e4,g4] [b3,e4] [a3,f#4,a4] [a3,f#4,a4]>");
+const cuerB1 = note("<[a3,c4,e4] [g3,b3,e4] [a3,f#4,a4] [a3,f#4,a4] [a3,c4,c5] [b3,f#4,b4] [a3,f#4,a4] [a3,f#4,a4] [a3,c4,f#4,b4] [b3,d4,b4] [a3,d4,f#4,a4] [a3,f#4,a4] [a3,c4,f#4,b4] [b3,e4,b4] [b3,e4,f#4,b4] [b3,f#4,b4]>");
+const cuerB2 = note("<[a3,c4,a4] [e3,b3,b4] [f#3,a3,f#4,a4] [a3,f#4,a4] [a3,c4,f#4,b4] [b3,e4,b4] [f#3,a3,f#4,a4] [a3,f#4,a4] [a3,c4,e4,a4] [b3,e4,b4] [b3,d4,a4,b4] [a3,d4,f#4,a4] [a3,c4,e4,a4] [g3,b3,e4] [b3,d4,g4] [b3,d4,f#4]>");
+const cuerBrk = note("<[b3,c4,e4] ~ ~ ~ ~ [b3,d4] [a3,d4,f#4] [a3,d4,f#4]>");
+const cuerFin = note("<[a3,c4,e4] [b3,e4,g4] [a3,d4,a4] [a3,d4,a4] [a3,c4,a4] [b3,d4,g4] [a3,d4,f#4] [a3,d4,f#4]>");
+const cuerOut = note("<[a3,c4] ~ ~ ~ ~>");
 
 // ── Cuerdas: una nota larga por compás (salterio de arco) ──
 const strA = note("<~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ g4 b4 a4 f#4>");
@@ -66,80 +84,109 @@ const gB2 = note("<[d6 b4 b4@2 b4 f#4 b4 b4] [b4 b4 b4 b4 b4 b4 b4 b4] [b4 b4 b4
 
 // ── Metales: notas largas ──
 const brA = note("<~ ~ ~ ~ ~ ~ ~ f#4 g4 ~ ~ ~ ~ ~ f#4 f#4>");
-const brB1 = note("<g4 ~ ~ ~ ~ ~ a4 f#4 b4 f#4 ~ f#4 f#4 e4 b4 b4>");
-const brB2 = note("<b4 b4 b4 f#5 f#5 b4 f#5 d5 e5 b4 ~ ~ ~ ~ ~ ~>");
-const brFin = note("<c4 b3 a3 a3 c4 b3 d4 ~>");
+// (en B solo en 24 y 35–38, en B2 de 43 a 48, con las voces de Suno, y en el final sin 67 ni 70)
+const brB1 = note("<g4 ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ f#4 f#4 [e4,b4] [f#4,b4] ~>");
+const brB2 = note("<~ ~ ~ [f#4,a4] [b4,f#5] b4 [f#4,b4] [f#4,f#5] [c4,e4,a4] ~ ~ ~ ~ ~ ~ ~>");
+const brFin = note("<c4 b3 a3 ~ c4 b3 ~ ~>");
 
-// ── Bajo: corcheas sobre la raíz, como en la pista de bajo ──
-const bassIntro = note("<f2 f2 d2 d2 a1 e2 d2 d2>");
-const bassA = note("<[a1 ~ a1 a2 a1 a2 a1 g1] [e2 ~ e2 g2 ~ e2 d2 ~] [d2@2 d2@2 d2 a2 d2@2] [~ d2@3 d2@3 a1] [a1 ~ a1 a2 a1 a2 a1 g1] [g1 ~ g1 g2 ~ g1 a1 ~] [d2@2 d2@2 d2 a2 d2@2] [~ d2@3 d2@3 a1] [a1 ~ a1 a2 a1 a2 a1 g1] [e2 ~ e2 g2 ~ e2 d2 ~] [d2@2 d2@2 d2 a2 d2@2] [~ d2@3 d2@3 a1] [a1 ~ a1 a2 a1 a2 a1 g1] [g1 ~ g1 g2 e2 ~ e2 d2] [d2@2 d2@2 d2 a2 d2@2] [~ d2@3 d2@3 a1]>");
-const bassB1 = note("<[a1 ~ a1 a2 a1 a2 a1 g1] [e2 ~ e2 g2 ~ e2 d2 ~] [d2@2 d2@2 d2 a2 d2@2] [~ d2@3 d2@3 a1] [a1 ~ a1 a2 a1 a2 a1 g1] [b1 ~ b1 b2 ~ b1 a1 ~] [d2@2 d2@2 d2 a2 d2@2] [~ d2@3 d2@3 a1] [a1 ~ a1 a2 a1 a2 a1 g1] [g1 ~ g1 g2 ~ g1 a1 ~] [d2@2 d2@2 d2 a2 d2@2] [~ d2@3 d2@3 a1] [a1 ~ a1 a2 a1 a2 a1 g1] [c2 c2 c2 c2 c2 c2 c2 c2] [d2@2 d2@2 d2 a2 d2@2] [~ d2@3 d2@3 a1]>");
-const bassB2 = note("<[a1 ~ a1 a2 a1 a2 a1 g1] [e2 ~ e2 g2 ~ e2 d2 ~] [d2@2 d2@2 d2 a2 d2@2] [~ d2@3 d2@3 a1] [a1 ~ a1 a2 a1 a2 a1 g1] [e2 ~ e2 g2 ~ e2 d2 ~] [d2@2 d2@2 d2 a2 d2@2] [~ d2@3 d2@3 a1] [a1 ~ a1 a2 a1 a2 a1 g1] [e2 ~ e2 g2 ~ e2 d2 ~] [g1 ~ g1 g2 ~ g1 a1 ~] [d2@2 d2@2 d2 a2 d2@2] [a1 ~ a1 a2 a1 a2 a1 g1] [c2 c2 c2 c2 c2 c2 c2 c2] [d2@2 d2@2 d2 a2 d2@2] ~>");
-const bassFin = note("<[a1 ~ a1 a2 a1 a2 a1 g1] [e2 ~ e2 g2 ~ e2 d2 ~] [d2@2 d2@2 d2 a2 d2@2] [~ d2@3 d2@3 a1] [a1 ~ a1 a2 a1 a2 a1 g1] [g1 ~ g1 g2 ~ g1 a1 ~] [d2@2 d2@2 d2 a2 d2@2] [d2@4 a1@4]>");
-const bassOut = note("<f2 [c2 e2] d2 d2 d2>");
-const groove = p => p.attack(0.01).decay(0.4).sustain(0.6).release(0.15).gain(0.42);   // corcheas con pegada
-const held = p => p.attack(0.08).sustain(0.8).release(1.2);                             // notas largas (intro y cierre)
+// ── Bajo: la fundamental de cada compás, sostenida, como en la pista de bajo de Suno ──
+// No toca corcheas: sostiene la nota y la vuelve a pulsar con un ritmo que cambia por tramos (A: solo en el 1; luego
+// 1-«e»-3…), y a menudo adelanta el acorde siguiente a la última semicorchea.
+// ritmo('a1 e1 d2', patrón, siguiente): R = la nota del compás, N = la del compás siguiente (la última, «siguiente»).
+// Van con comillas simples: son textos de JavaScript, no patrones.
+const ritmo = (raices, patron, siguiente) => {
+  const r = raices.split(' ');
+  return r.map((x, i) => patron.replace(/R/g, x).replace(/N/g, i + 1 < r.length ? r[i + 1] : (siguiente || r[0])));
+};
+const bajo = (...compases) => note('<' + compases.flat().join(' ') + '>');
+const SOLO1 = '[R@15 N]', MUEVE = '[R@2 R@5 R@3 R@5 N]', TRES = '[R@7 R@3 R@3 R@2 N]', DOS = '[R@7 R@8 N]';
+const bassIntro = note("<[~ f2] f2 d2 d2 [~ a2] e2 d2 [d2 d3]>");
+const bassA = bajo(ritmo('a1 e1 d2 d2 a1 g1 d2 d2', SOLO1, 'a1'), ritmo('a1 e1 d2 d2 a1 e1 d2 d2', MUEVE, 'a1'));
+const bassB1 = bajo(ritmo('a1', MUEVE, 'e1'), '[e1@2 e1@5 g1@3 g1@5 d2]', ritmo('d2 d2 a1', MUEVE, 'e1'), '[e1@2 e1@5 g1@3 g1@5 d2]',
+  ritmo('d2 d2', MUEVE, 'a1'), ritmo('a1 g1 d2 d2 a1 c2', TRES, 'd3'), '[d3@7 d3@3 d3@3 d3@3]', '[d3@8 ~@8]');
+const bassB2 = bajo(ritmo('a1 e1 d2 d2 a1 e1 d2 d2', DOS, 'a1'), ritmo('a1 e1 g1 d2 a1 c2', TRES, 'g2'), '[g2@8 ~@8]', '~');
+const bassFin = bajo(ritmo('a1 e1 d2 d2 a1 g1 d2 d2', MUEVE, 'a2'));
+const bassOut = note("<a2 e2 d2 d2 [d2 ~]>");
+const legato = p => p.attack(0.008).decay(0.3).sustain(0.75).release(0.12);   // notas ligadas con algo de pegada
+const held = p => p.attack(0.08).sustain(0.8).release(1.2);                    // notas largas (intro y cierre)
 
 // ── Batería ──
 const kick = s("<[x ~ ~ x ~ ~ ~ ~ ~ ~ x ~ ~ x ~ ~]!3 [x ~ ~ x ~ ~ ~ x ~ ~ x ~ ~ ~ ~ ~]>");
 const snare = s("[~ x]*2");
 const ghosts = s("<[~ ~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~ ~ ~ ~] [~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ x]>");
 const fill = s("<~!15 [~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ x x x x]>");
-const hats = s("white*16");
+const hats = s("white*8");                     // en Suno, corcheas casi iguales (el 1 algo más flojo)
+const acentos = "[0.75 1 1 1 0.95 0.95 1 1]";
 const openHat = s("<~ ~ ~ [~ ~ ~ ~ ~ ~ ~ ~ ~ ~ white ~]>");
 const kickIntro = s("<~ ~ ~ ~ ~ ~ [x ~ ~ ~ ~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~] [x ~ ~ x ~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~]>");
 const snareIntro = s("<~ ~ ~ ~ ~ ~ ~ [~ ~ ~ ~ x ~ ~ ~ ~ ~ ~ ~ x x x x]>");
 const hatsIntro = s("<~ ~ ~ ~ ~ ~ [~ white]*4 white*8>");
-const shaker = s("white*16");
+// La batería de Suno suena en una sala: abierta (lados a −10/−16 dB del centro entre 500 Hz y 4 kHz) y con cola entre
+// golpes. Aquí va a la misma reverb que el resto (canal 2), con poca cantidad.
 
 stack(
-  // Piano (Steinway): acordes; en A y el final con un segundo golpe en el «y» del 3, en B más bajo
-  form(pIntro, pA.struct(strum), pB1, pB2, pBrk, pFin.struct(strum), pOut)
-    .s("steinway").velocity(0.3).lpf(2600).orbit(2).room(0.45).size(4).pan(0.46).gain(0.42),
+  // Piano: acompañamiento en semicorcheas, muy apagado (en Suno el teclado cae −21 dB a 2 kHz y −37 dB a 4 kHz) y con
+  // el nivel de cada sección medido contra Suno (por detrás en A, B y el final; delante en la intro, el parón y el cierre)
+  form(ostIntro.gain(0.22), ostA.gain(0.117), ostB1.gain(0.117), ostB2.gain(0.117), ostBrk.gain(0.194), ostFin.gain(0.065), ostOut.gain(0.21))
+    .s("steinway").velocity("[0.34 0.27 0.3 0.27]*4").ftype('24db').lpf(1100).orbit(2).room(0.45).size(4).pan(0.46).tag('piano_acordes'),
   // Piano: melodías
-  form(silence, melA, melB1, melB2, melBrk, silence, melOut)
-    .s("steinway").velocity(0.38).lpf(4200).orbit(2).room(0.5).size(4).pan(0.54).gain(0.4),
+  form(silence, melA.gain(0.109), melB1.gain(0.109), melB2.gain(0.109), melBrk.gain(0.186), silence, melOut.gain(0.2))
+    .s("steinway").velocity(0.38).ftype('24db').lpf(1400).orbit(2).room(0.5).size(4).pan(0.54).tag('piano_melodia'),
 
-  // Pad de triángulo (siempre; baja en el parón)
-  form(padIntro.gain(0.035), padA.gain(0.035), padB1.gain(0.03), padB2.gain(0.03), padBrk.gain(0.022), padFin.gain(0.035), padOut.gain(0.035))
-    .s("triangle").attack(0.5).sustain(1).release(1.2).lpf(1800).orbit(2).room(0.5).size(4).pan(0.5),
-  // Cuerdas: pad de sierra suave (B, B2 y final) y la nota larga del salterio de arco
-  form(silence, silence, padB1, padB2, silence, padFin, silence)
-    .s("sawtooth").attack(0.8).sustain(1).release(1.5).lpf(1300).vib(4.5).vibmod(0.06).orbit(2).room(0.55).size(4).pan(0.38).gain(0.026),
-  form(silence, strA, strB1, strB2, strBrk, strFin, silence)
-    .s("psalterio").clip(1).attack(0.4).release(1.2).hpf(250).lpf(6500).orbit(2).room(0.55).size(4).pan(0.4).gain(0.22),
+  // Pad de sinte: supersaw abierto en estéreo (en Suno el lado suena tan fuerte como el centro) y filtrado a 1,7 kHz,
+  // que deja su curva (−7 dB a 1 kHz, −23 dB a 4 kHz respecto a 500 Hz). Intensidad por sección medida contra Suno:
+  // suave en la intro y el parón, más fuerte en B y en el final
+  form(synIntro.velocity(0.42), synA.velocity(0.78), synB1.velocity(1.1), synB2.velocity(0.83), synBrk.velocity(0.55), synFin.velocity(1.2), synOut.velocity(0.65))
+    .s("supersaw").unison(4).detune(0.12).spread(1).attack(0.4).sustain(1).release(1.5).lpf(1700)
+    .orbit(2).room(0.4).size(4).gain(0.07).tag('pad'),
+  // Cuerdas: acordes de sierra con las voces de Suno (desde el final de A) y la nota larga del salterio de arco, apagada
+  // (en Suno las cuerdas casi no suenan en A, faltan en el cierre y son muy abiertas: el lado suena más que el centro)
+  form(silence, cuerA.velocity(0.08), cuerB1, cuerB2, cuerBrk, cuerFin, silence)
+    .s("supersaw").unison(3).detune(0.15).spread(1).attack(0.8).sustain(1).release(1.5).lpf(1300).vib(4.5).vibmod(0.06)
+    .orbit(2).room(0.55).size(4).gain(0.018).tag('cuerdas_pad'),
+  form(silence, strA.velocity(0.08), strB1, strB2, strBrk, strFin, silence)
+    .s("psalterio").clip(1).attack(0.4).release(1.2).hpf(250).lpf(2000).orbit(2).room(0.55).size(4).pan(0.5).gain(0.08).tag('cuerdas'),
 
-  // Guitarra (triángulo con un poco de FM): trémolo en corcheas
-  form(gIntro, gA, gB1, gB2, silence, silence, silence)
+  // Guitarra (triángulo con un poco de FM): trémolo en corcheas. Solo en los compases en que suena en Suno (en A,
+  // a ratos; en B, de la mitad en adelante; en B2, la primera mitad) y algo a la izquierda, como allí
+  form(gIntro, gA.mask("<0!6 1!3 0!2 1 0!3 1>"), gB1.mask("<1 0!5 1!10>"), gB2.mask("<1!9 0!7>"), silence, silence, silence)
     .s("triangle").fmh(2).fmi(0.35).attack(0.005).decay(0.32).sustain(0.2).release(0.25).lpf(3200)
-    .orbit(2).room(0.4).size(4).pan(0.64).gain(0.075),
-  // Metales: notas largas con vibrato
-  form(silence, brA, brB1, brB2, silence, brFin, silence)
-    .s("sawtooth").attack(0.6).sustain(0.85).release(0.9).lpf(1000).vib(5).vibmod(0.08).orbit(2).room(0.5).size(4).pan(0.58).gain(0.04),
+    .orbit(2).room(0.4).size(4).pan(0.4).gain(0.089).tag('guitarra'),
+  // Metales: notas largas con vibrato, más abiertas que antes (los de Suno tienen más brillo a 2–4 kHz)
+  form(silence, brA.velocity(1.46), brB1.velocity(0.61), brB2.velocity(0.45), silence, brFin.velocity(0.52), silence)
+    .s("sawtooth").attack(0.6).sustain(0.85).release(0.9).lpf(2400).vib(5).vibmod(0.08).orbit(2).room(0.5).size(4).pan(0.58).gain(0.04).tag('metales'),
 
-  // Bajo (triángulo filtrado): suave en la intro, corcheas en el groove, fuera en el parón
-  form(held(bassIntro).gain(0.22), groove(bassA), groove(bassB1), groove(bassB2), silence, groove(bassFin), held(bassOut).gain(0.3))
-    .s("triangle").lpf(700),
+  // Bajo: sierra con filtro de 24 dB/oct a 200 Hz (fundamental y segundo armónico, como el de Suno: −5 dB a 125 Hz,
+  // −31 dB a 500 Hz) con dos voces algo desafinadas para que se abra un poco arriba. En la intro y el cierre de Suno
+  // apenas se oye (−26 y −19 dB de la mezcla) y en el parón calla
+  form(held(bassIntro).velocity(0.022), legato(bassA), legato(bassB1), legato(bassB2), silence, legato(bassFin).velocity(0.8), held(bassOut).velocity(0.07))
+    .s("supersaw").unison(2).detune(0.08).spread(0.5).ftype('24db').lpf(200).gain(0.32).tag('bajo'),
 
   // ── Batería (SFXMint + charles y maraca de ruido) ──
-  form(kickIntro, kick, kick, kick, s("[x ~ ~ ~ ~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~]"), kick, silence)
-    .s("sfx_acoustic_drum_kit_kick_01").lpf(800).gain(1.15),
-  form(snareIntro, snare, snare, snare, silence, snare, silence)
-    .s("sfx_acoustic_drum_kit_snare_01").lpf(3800).hpf(180).gain(0.75),
+  // (en la intro, a la mitad: en Suno la batería entra suave, a −10/−7 dB de la mezcla; en el cierre, un último golpe)
+  form(kickIntro.velocity(0.27), kick, kick, kick, s("[x ~ ~ ~ ~ ~ ~ ~ ~ ~ x ~ ~ ~ ~ ~]"), kick, s("<x ~ ~ ~ ~>").velocity(0.3))
+    .s("sfx_acoustic_drum_kit_kick_01").lpf(800).orbit(2).room(0.05).size(4).gain(0.8).tag('bombo'),
+  // caja menos filtrada que antes: la de SFXMint tiene mucho cuerpo en 1 kHz y la de Suno es más brillante
+  form(snareIntro.velocity(0.27), snare, snare, snare, silence, snare, silence)
+    .s("sfx_acoustic_drum_kit_snare_01").lpf(9000).hpf(180).orbit(2).room(0.25).size(4).gain(0.55).tag('caja'),
   form(silence, fill, fill, fill, silence, silence, silence)
-    .s("sfx_acoustic_drum_kit_snare_01").lpf(3500).hpf(200).gain("[0.3 0.4 0.5 0.6]*4"),
+    .s("sfx_acoustic_drum_kit_snare_01").lpf(8000).hpf(200).orbit(2).room(0.25).size(4).gain("[0.22 0.3 0.37 0.44]*4").tag('caja_redoble'),
   form(silence, ghosts, ghosts, ghosts, silence, ghosts, silence)
-    .s("sfx_acoustic_drum_kit_snare_01").lpf(2800).hpf(250).gain(0.2),
+    .s("sfx_acoustic_drum_kit_snare_01").lpf(6000).hpf(250).orbit(2).room(0.25).size(4).gain(0.15).tag('caja_ghost'),
   form(silence, silence, silence, silence, snare, silence, silence)
-    .s("sfx_acoustic_drum_kit_snare_cross_stick_01").lpf(4000).gain(0.3),
-  form(hatsIntro.gain(0.035), hats.gain("[0.05 0.02 0.035 0.02]*4"), hats.gain("[0.055 0.022 0.04 0.022]*4"),
-       hats.gain("[0.055 0.022 0.04 0.022]*4"), s("white*8").gain(0.03), hats.gain("[0.06 0.024 0.042 0.024]*4"), silence)
-    .decay(0.03).sustain(0).hpf(7500).lpf(11000).pan(0.56),
+    .s("sfx_acoustic_drum_kit_snare_cross_stick_01").lpf(4000).orbit(2).room(0.2).size(4).gain(0.3).tag('aro'),
+  form(hatsIntro.gain(0.012), hats.gain(acentos).mul(gain(0.056)), hats.gain(acentos).mul(gain(0.063)),
+       hats.gain(acentos).mul(gain(0.063)), s("white*8").gain(0.038), hats.gain(acentos).mul(gain(0.07)), silence)
+    .decay(0.035).sustain(0).hpf(7000).pan(0.45).orbit(2).room(0.15).size(4).tag('charles'),
   form(silence, openHat, openHat, openHat, silence, openHat, silence)
-    .decay(0.22).sustain(0).hpf(6000).lpf(11000).pan(0.6).gain(0.05),
-  form(shaker.mask("<0!5 1!3>").gain("[0.02 0.01 0.015 0.01]*4"), silence, silence, silence,
-       shaker.gain("[0.03 0.014 0.022 0.014]*4"), s("white*8").gain("[0.045 0.028]*4"), silence)
-    .decay(0.04).sustain(0).hpf(5000).lpf(10000).pan(0.38),
-  form(silence, once, once, once, silence, once, silence)
-    .s("sfx_acoustic_drum_kit_crash_01").hpf(400).lpf(8000).pan(0.42).gain(0.2)
+    .decay(0.22).sustain(0).hpf(6000).pan(0.4).orbit(2).room(0.2).size(4).gain(0.05).tag('charles_abierto'),
+  // Maraca: la de Suno. Bucles de dos compases sacados de su pista de percusión (samples/Suno, con
+  // tools/analisis/10_samples_suno.py): el ruido filtrado no daba su textura, que llega desde 500 Hz. Niveles de Suno:
+  // fuerte al final de la intro y en los compases 70–71, casi de fondo en A y B, media en el parón y el final
+  form(s("<~ ~ ~ ~ ~ ~ qb_maraca_suave ~>").gain(0.134), s("<qb_maraca ~>").gain(0.0058), s("<qb_maraca ~>").gain(0.0087),
+       s("<qb_maraca ~>").gain(0.0071), s("<qb_maraca ~>").gain(0.035), s("<qb_maraca ~>").gain("<0.0166 ~ 0.0166 ~ 0.0166 ~ 0.095 ~>"),
+       s("<qb_maraca ~ ~ ~ ~>").clip(1).gain(0.071))
+    .tag('maraca'),
+  form(silence, once, once, once, silence, once, s("<x ~ ~ ~ ~>").velocity(0.5))
+    .s("sfx_acoustic_drum_kit_crash_01").hpf(400).lpf(8000).pan(0.42).orbit(2).room(0.3).size(4).gain(0.2).tag('platillo')
 ).cpm(80.67 / 4)

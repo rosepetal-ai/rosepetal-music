@@ -56,7 +56,7 @@ Strudel genera el audio en el navegador, en tiempo real. En una Surface Go 3 (Co
 | `08-latido-de-cristal.strudel` | Electrónica ambiental (Kiasmos, Ital Tek, Lorn), 118 BPM, Fa menor, 64 compases (~2 min 10 s). Bombo a negras, pad que bombea, piano apagado en 3-3-2, pulso de sierra a 3 contra 8 y bajo a contratiempo; en la pausa, un bajo oscuro y resonante y la melodía, que vuelve arriba en el clímax. |
 | `09-orbita-lenta.strudel` | Electrónica espacial con pulso, pensada como BSO para animaciones: 120 BPM, Re mayor lidio, 2 min justos. Cada sección empieza cada 16 s con un golpe para poder cortar en el montaje; secuencia de sierra en semicorcheas, salterio con el tema, estrellas FM, subida y cumbre. |
 | `10-codigo-petalo.strudel` | Banda sonora para las animaciones de Rosepetal con el aire de «Code 46» (The Free Association): 86 BPM, Re menor, 64 compases (~3 min). Breakbeat suave, piano, ostinato y salterio, sobre texturas de cine de Dronny Darko (necesita `samples/Texturas`, ver abajo). |
-| `11-belleza-callada.strudel` | Recreación de «Quiet Beauty», una canción hecha con Suno, a partir del análisis de sus pistas ([tools/analisis](tools/analisis/README.md)): 80,67 BPM, Re mayor, 77 compases (~3 min 49 s). Intro, groove A, B con cuerdas y metales, B2, parón sin bajo, final y cierre. |
+| `11-belleza-callada.strudel` | Recreación de «Quiet Beauty», una canción hecha con Suno, a partir del análisis de sus pistas ([tools/analisis](tools/analisis/README.md)): 80,67 BPM, Re mayor, 77 compases (~3 min 49 s). Intro, groove A, B con cuerdas y metales, B2, parón sin bajo, final y cierre. Ajustada después capa a capa contra las pistas de Suno ([informe](docs/11-belleza-callada-fidelidad.md)); la maraca es la de Suno (`samples/Suno`, no se sube). |
 
 Cada pieza lleva en sus comentarios la forma, la armonía y la afinación de los samples.
 
@@ -80,4 +80,5 @@ La variable `SAMPLES_DIRS` cambia las carpetas de samples (separadas por `;`). P
   ```
   Evalúa la pieza con el mismo Strudel que la página (1.2.6) y cuenta las notas de cada compás. Avisa si un compás pasa de 55 (el Surface Go puede cortar) y si un sonido no existe en el servidor. La página no devuelve los errores cuando la pieza llega por `POST /play`; esto sí.
 - **Analizar una canción de referencia** (tempo, compases, acordes, notas, secciones y timbre a partir de sus pistas separadas): [tools/analisis](tools/analisis/README.md). Usa librosa, Essentia y Basic Pitch en WSL.
+- **Comparar una pieza con su referencia, instrumento a instrumento:** `public/render-lote.html` renderiza cada capa de la pieza (marcada con `.tag('nombre')`) sin tiempo real, y `tools/analisis/06_comparar.py` y `07_ab.py` dan un informe por compás y una página de escucha A/B en `http://127.0.0.1:8091/renders/…` (ver [tools/analisis](tools/analisis/README.md)).
 - **Preparar las texturas de Dronny Darko** de la pieza 10: `tools/prep-dronny-darko.js` (instrucciones en su cabecera).
