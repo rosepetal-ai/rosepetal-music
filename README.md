@@ -57,6 +57,7 @@ Strudel genera el audio en el navegador, en tiempo real. En una Surface Go 3 (Co
 | `09-orbita-lenta.strudel` | Electrónica espacial con pulso, pensada como BSO para animaciones: 120 BPM, Re mayor lidio, 2 min justos. Cada sección empieza cada 16 s con un golpe para poder cortar en el montaje; secuencia de sierra en semicorcheas, salterio con el tema, estrellas FM, subida y cumbre. |
 | `10-codigo-petalo.strudel` | Banda sonora para las animaciones de Rosepetal con el aire de «Code 46» (The Free Association): 86 BPM, Re menor, 64 compases (~3 min). Breakbeat suave, piano, ostinato y salterio, sobre texturas de cine de Dronny Darko (necesita `samples/Texturas`, ver abajo). |
 | `11-belleza-callada.strudel` | Recreación de «Quiet Beauty», una canción hecha con Suno, a partir del análisis de sus pistas ([tools/analisis](tools/analisis/README.md)): 80,67 BPM, Re mayor, 77 compases (~3 min 49 s). Intro, groove A, B con cuerdas y metales, B2, parón sin bajo, final y cierre. Ajustada después capa a capa contra las pistas de Suno ([informe](docs/11-belleza-callada-fidelidad.md)); la maraca es la de Suno (`samples/Suno`, no se sube). |
+| `12-belleza-callada-simple.strudel` | La primera versión de la 11, antes de compararla con las pistas de Suno: bajo en corcheas, piano en acordes, pad de triángulo y maraca de ruido. Más sencilla y sin samples fuera del repositorio. |
 
 Cada pieza lleva en sus comentarios la forma, la armonía y la afinación de los samples.
 
