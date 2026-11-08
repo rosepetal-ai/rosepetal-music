@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A/B · Suno frente a Strudel</title>
+<style>
+  :root { --bg: #17110f; --fg: #f3e6df; --dim: #a8958c; --rose: #e8a0a8; --a: #9fc3e8; --b: #e8b98f; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 system-ui, sans-serif; }
+  main { width: min(860px, 94vw); margin: 0 auto; padding: 24px 0 48px; }
+  h1 { font-weight: 300; letter-spacing: 0.06em; margin: 0 0 4px; }
+  .sub { color: var(--dim); margin: 0 0 18px; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 10px 0; }
+  button, select { background: #2b201d; color: var(--fg); border: 1px solid #4a3833; border-radius: 8px; padding: 8px 14px; font: inherit; cursor: pointer; }
+  button:hover { border-color: var(--rose); } button:disabled { opacity: 0.4; cursor: default; }
+  button.on.a { background: var(--a); color: #10202c; border-color: var(--a); }
+  button.on.b { background: var(--b); color: #2c1a0d; border-color: var(--b); }
+  button.big { font-size: 18px; padding: 12px 22px; min-width: 120px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 16px; }
+  td, th { border-bottom: 1px solid #33261f; padding: 4px 6px; text-align: left; }
+  th { color: var(--dim); font-weight: 400; }
+  td.sel { background: #2b201d; }
+  .bar { height: 6px; background: #33261f; border-radius: 3px; overflow: hidden; margin: 12px 0; cursor: pointer; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--rose); }
+  .note { color: var(--dim); font-size: 13px; }
+  kbd { border: 1px solid #4a3833; border-radius: 4px; padding: 0 5px; font-size: 12px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>A/B · Suno frente a Strudel</h1>
+  <p class="sub">Los dos lados suenan a la misma sonoridad (−23 LUFS) para no confundir volumen con calidad. Cambia de lado sin parar: salta al mismo compás aunque el tempo de Suno se mueva.</p>
+  <div class="row">
+    <select id="pista"></select>
+    <select id="seccion"></select>
+    <label class="note">B = <select id="version"></select></label>
+    <label class="note"><input type="checkbox" id="ciego"> a ciegas</label>
+    <label class="note"><input type="checkbox" id="real"> nivel real (el que tiene en su mezcla)</label>
+  </div>
+  <div class="row">
+    <button id="play" class="big">▶ Tocar</button>
+    <button id="ba" class="big a">A · Suno</button>
+    <button id="bb" class="big b">B · Strudel</button>
+    <button id="revela" hidden>Desvelar</button>
+  </div>
+  <div class="bar" id="bar"><i></i></div>
+  <p class="note" id="info"></p>
+  <p class="note"><kbd>espacio</kbd> tocar o parar · <kbd>A</kbd> / <kbd>B</kbd> o <kbd>Tab</kbd> cambiar de lado · <kbd>←</kbd> volver al principio · se repite en bucle.</p>
+  <table id="tabla"></table>
+</main>
+<script type="module">
+const $ = id => document.getElementById(id);
+const man = await (await fetch('manifest.json', { cache: 'no-store' })).json();
+const ctx = new AudioContext();
+const cache = new Map();
+// Solo suena un lado cada vez. La posición se guarda en compases (posición musical): el tempo de Suno se mueve y el
+// de la pieza no, así que al cambiar de lado se salta al mismo compás y fracción, no al mismo segundo.
+let lado = 'a', fuente = null, t0 = 0, desdeSeg = 0, pos = 0, sonando = false, mapaCiego = { a: 'a', b: 'b' }, actual = null;
+
+const pistas = Object.keys(man.pistas);
+$('pista').innerHTML = pistas.map(p => `<option>${p}</option>`).join('');
+$('seccion').innerHTML = man.secciones.map(s => `<option value="${s.nombre}">${s.nombre} (compases ${s.desde}–${s.hasta - 1})</option>`).join('');
+$('version').innerHTML = man.versiones.map(v => `<option>${v}</option>`).reverse().join('');
+
+async function buffer(url) {
+  if (!cache.has(url)) cache.set(url, fetch(url).then(r => r.arrayBuffer()).then(b => ctx.decodeAudioData(b)));
+  return cache.get(url);
+}
+const seccion = () => man.secciones.find(s => s.nombre === $('seccion').value);
+function trozo() {
+  const e = man.pistas[$('pista').value]?.[$('seccion').value];
+  if (!e) return null;
+  const dir = $('pista').value.replace(/ /g, '_') + '/', sec = seccion();
+  const v = e.versiones?.[$('version').value];
+  return { a: e.suno && { ...e.suno, url: dir + e.suno.archivo, compases: sec.compases_suno },
+           b: v && { ...v, url: dir + v.archivo, compases: sec.compases_strudel } };
+}
+// segundos ↔ compases, por tramos rectos entre inicios de compás
+const aCompas = (c, t) => { for (let k = 0; k < c.length - 1; k++) if (t < c[k + 1] || k === c.length - 2) return k + (t - c[k]) / (c[k + 1] - c[k]); return 0; };
+const aSeg = (c, p) => { const k = Math.min(Math.floor(p), c.length - 2); return c[k] + (p - k) * (c[k + 1] - c[k]); };
+const total = c => c.length - 1;
+function posicion() {
+  if (!sonando || !actual) return pos;
+  const t = desdeSeg + (ctx.currentTime - t0);
+  return aCompas(actual.compases, t % actual.dur) % total(actual.compases);
+}
+function para() {
+  pos = posicion();
+  if (fuente) { const f = fuente; f.g.gain.setTargetAtTime(0, ctx.currentTime, 0.008); setTimeout(() => { try { f.stop(); } catch {} }, 80); }
+  fuente = null; sonando = false; $('play').textContent = '▶ Tocar';
+}
+async function toca(p = pos) {
+  const t = trozo(), q = t?.[lado];
+  if (fuente) para();
+  pos = p;
+  if (!q) { $('info').textContent = 'Este lado está en silencio en esta sección.'; return; }
+  const buf = await buffer(q.url);
+  await ctx.resume();
+  const db = $('real').checked ? q.en_mezcla + 12 : 0;
+  const g = ctx.createGain(); g.connect(ctx.destination);
+  const now = ctx.currentTime + 0.03;
+  g.gain.setValueAtTime(0, now); g.gain.linearRampToValueAtTime(10 ** (db / 20), now + 0.015);
+  const s = ctx.createBufferSource(); s.buffer = buf; s.loop = true; s.loopEnd = buf.duration; s.connect(g); s.g = g;
+  desdeSeg = Math.min(aSeg(q.compases, p), buf.duration - 0.01);
+  s.start(now, desdeSeg);
+  fuente = s; t0 = now; sonando = true; actual = { compases: q.compases, dur: buf.duration };
+  $('play').textContent = '■ Parar';
+}
+function elige(k) {
+  const real = $('ciego').checked ? mapaCiego[k] : k;
+  $('ba').classList.toggle('on', k === 'a'); $('bb').classList.toggle('on', k === 'b');
+  if (real === lado) return;
+  const p = posicion();
+  lado = real;
+  if (sonando) toca(p); else pos = p;
+}
+function rotula() {
+  const ciego = $('ciego').checked;
+  $('ba').textContent = ciego ? 'X' : 'A · Suno'; $('bb').textContent = ciego ? 'Y' : `B · Strudel ${$('version').value}`;
+  $('revela').hidden = !ciego;
+  const t = trozo();
+  const f = x => x ? `${x.en_mezcla > 0 ? '+' : ''}${x.en_mezcla} dB en su mezcla (${x.lufs} LUFS)` : 'en silencio';
+  $('info').textContent = !t ? '' : ciego ? 'A ciegas: X e Y son Suno y Strudel en orden al azar.' : `Suno: ${f(t.a)} · Strudel ${$('version').value}: ${f(t.b)}`;
+  tabla();
+}
+function tabla() {
+  const p = man.pistas[$('pista').value], vs = man.versiones;
+  $('tabla').innerHTML = `<tr><th>sección</th><th>Suno en su mezcla</th>${vs.map(v => `<th>${v}</th>`).join('')}</tr>` +
+    man.secciones.map(s => { const e = p[s.nombre] || {}; const c = x => x ? `${x.en_mezcla > 0 ? '+' : ''}${x.en_mezcla} dB` : '—';
+      return `<tr><td class="${s.nombre === $('seccion').value ? 'sel' : ''}">${s.nombre}</td><td>${c(e.suno)}</td>${vs.map(v => `<td>${c(e.versiones?.[v])}</td>`).join('')}</tr>`; }).join('');
+}
+const cambia = () => { pos = 0; mapaCiego = Math.random() < 0.5 ? { a: 'a', b: 'b' } : { a: 'b', b: 'a' }; rotula(); if (sonando) toca(0); };
+['pista', 'seccion', 'version'].forEach(id => $(id).onchange = cambia);
+$('ciego').onchange = cambia;
+$('real').onchange = () => { if (sonando) toca(posicion()); rotula(); };
+$('play').onclick = () => sonando ? para() : toca();
+$('ba').onclick = () => elige('a'); $('bb').onclick = () => elige('b');
+$('revela').onclick = () => { $('info').textContent = `X = ${mapaCiego.a === 'a' ? 'Suno' : 'Strudel'} · Y = ${mapaCiego.b === 'a' ? 'Suno' : 'Strudel'}`; };
+$('bar').onclick = e => { const sec = seccion(); const r = $('bar').getBoundingClientRect(); toca((e.clientX - r.left) / r.width * (sec.hasta - sec.desde)); };
+document.onkeydown = e => {
+  if (e.target.tagName === 'SELECT') return;
+  if (e.code === 'Space') { e.preventDefault(); sonando ? para() : toca(); }
+  else if (e.code === 'KeyA') elige('a'); else if (e.code === 'KeyB') elige('b');
+  else if (e.code === 'Tab') { e.preventDefault(); elige($('bb').classList.contains('on') ? 'a' : 'b'); }
+  else if (e.code === 'ArrowLeft') toca(0);
+};
+setInterval(() => { const sec = seccion(); $('bar').firstElementChild.style.width = `${posicion() / (sec.hasta - sec.desde) * 100}%`; }, 100);
+elige('a'); rotula();
+</script>
+</body>
+</html>

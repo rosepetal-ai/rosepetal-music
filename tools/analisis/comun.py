@@ -75,3 +75,20 @@ def tramos(texto, total, largo=8):
 def guarda(salida, nombre, datos):
     with open(os.path.join(salida, nombre), 'w', encoding='utf-8') as fh:
         json.dump(datos, fh, ensure_ascii=False, indent=1)
+
+
+def inicios(salida, comparacion=None):
+    """Inicio de cada compás de Suno: los alineados con la pieza (comparacion.json de 06_comparar.py), que siguen el
+    tempo real de Suno, o la rejilla recta de rejilla.json"""
+    r = rejilla(salida)
+    if comparacion:
+        return json.load(open(comparacion, encoding='utf-8'))['alineado']['inicios_suno']
+    return [r['inicio'] + k * r['compas'] for k in range(r['compases'] + 1)]
+
+
+def en_rejilla(t, S, pasos=16):
+    """Tiempo → (compás, paso redondeado) con compases de duración variable"""
+    import bisect
+    k = max(0, min(len(S) - 2, bisect.bisect_right(S, t) - 1))
+    st = int(round((t - S[k]) / (S[k + 1] - S[k]) * pasos))
+    return (k + 1, st - pasos) if st >= pasos else (k, st)

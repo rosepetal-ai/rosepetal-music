@@ -10,8 +10,9 @@ const path = require('node:path');
 const PORT = Number(process.argv[2] || process.env.PORT || 8091);
 const DJ_PORT = Number(process.argv[3] || process.env.DJ_PORT || 53221);
 const PUBLIC = path.join(__dirname, 'public');
+const RENDERS = path.join(__dirname, 'renders');
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json', '.strudel': 'text/plain; charset=utf-8',
-  '.wav': 'audio/wav', '.aif': 'audio/aiff', '.aiff': 'audio/aiff', '.mp3': 'audio/mpeg', '.ogg': 'audio/ogg', '.flac': 'audio/flac' };
+  '.png': 'image/png', '.svg': 'image/svg+xml', '.css': 'text/css; charset=utf-8', '.wav': 'audio/wav', '.aif': 'audio/aiff', '.aiff': 'audio/aiff', '.mp3': 'audio/mpeg', '.ogg': 'audio/ogg', '.flac': 'audio/flac' };
 const ROUTES = { '/': 'index.html' };
 
 // ── Samples: se escanean varias carpetas y los golpes se agrupan por tipo ──
@@ -64,8 +65,9 @@ function scanSamples() {
       banks[name] = [di + '/' + rel.split(path.sep).map(encodeURIComponent).join('/')];
       continue;
     }
-    // Texturas preparadas a mano (samples/Texturas/…): cada archivo es su propio banco, con su nombre tal cual (dd_resonancia…)
-    if (/(^|[\\/])texturas[\\/]/i.test(rel)) {
+    // Texturas preparadas a mano (samples/Texturas/…) y samples sacados de las pistas de Suno (samples/Suno/…, con
+    // tools/analisis/10_samples_suno.py): cada archivo es su propio banco, con su nombre tal cual (dd_resonancia, qb_maraca…)
+    if (/(^|[\\/])(texturas|suno)[\\/]/i.test(rel)) {
       const name = path.basename(rel).replace(AUDIO, '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
       banks[name] = [di + '/' + rel.split(path.sep).map(encodeURIComponent).join('/')];
       continue;
@@ -154,6 +156,32 @@ function handle(req, res) {
       const list = [...clients.values()].filter(c => now - c.at < 15000).map(c => ({ ...c, ageMs: now - c.at }));
       res.writeHead(200, { 'content-type': MIME['.json'] });
       return res.end(JSON.stringify(list, null, 2));
+    }
+    // Renders offline (public/render.html) y comparaciones A/B, en renders/ (solo desde este equipo; git no lo sube):
+    //   POST /render-save?name=11/v0/bateria.wav  · guarda el cuerpo en renders/11/v0/bateria.wav
+    //   GET  /renders/11/ab/index.html             · sirve lo que haya en renders/
+    if (url.pathname === '/render-save' || url.pathname.startsWith('/renders/')) {
+      if (!isLoopback(req.socket.remoteAddress)) { res.writeHead(403); return res.end(); }
+      const save = url.pathname === '/render-save';
+      if (save !== (req.method === 'POST')) { res.writeHead(405); return res.end(); }
+      let rel = save ? (url.searchParams.get('name') || '') : decodeURIComponent(url.pathname.slice('/renders/'.length));
+      if (!save && (rel === '' || rel.endsWith('/'))) rel += 'index.html';
+      const file = path.normalize(path.join(RENDERS, rel));
+      if (!file.startsWith(RENDERS + path.sep)) { res.writeHead(403); return res.end(); }
+      if (!save) {
+        return fs.readFile(file, (err, data) => {
+          if (err) { res.writeHead(404); return res.end('No encontrado'); }
+          res.writeHead(200, { 'content-type': MIME[path.extname(file).toLowerCase()] || 'application/octet-stream', 'cache-control': 'no-store' });
+          res.end(data);
+        });
+      }
+      if (!/\.(wav|json)$/i.test(file)) { res.writeHead(400); return res.end('solo .wav o .json\n'); }
+      fs.mkdirSync(path.dirname(file), { recursive: true });
+      const out = fs.createWriteStream(file);
+      req.pipe(out);
+      out.on('finish', () => { res.writeHead(200); res.end(`guardado en renders/${rel}\n`); });
+      out.on('error', err => { res.writeHead(500); res.end(String(err)); });
+      return;
     }
     // Lista de piezas (public/music/*.strudel) para el selector de la página
     if (url.pathname === '/music/index.json') {

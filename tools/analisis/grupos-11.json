@@ -1,0 +1,14 @@
+{
+ "_": "Pistas de Suno de «Quiet Beauty» → capas de la pieza 11 (las marcadas con .tag('…')). Una pista sin capas es una parte que la pieza no toca.",
+ "drums": ["bombo", "caja", "caja_redoble", "caja_ghost", "aro", "charles", "charles_abierto", "platillo"],
+ "bass": ["bajo"],
+ "keyboard": ["piano_acordes", "piano_melodia"],
+ "synth": ["pad"],
+ "strings": ["cuerdas_pad", "cuerdas"],
+ "guitar": ["guitarra"],
+ "percussion": ["maraca"],
+ "brass": ["metales"],
+ "woodwinds": [],
+ "other": [],
+ "lead vocals": []
+}

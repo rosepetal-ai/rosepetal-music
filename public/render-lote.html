@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Render offline por capas · Rosepetal Music</title>
+<style>body { background: #17110f; color: #f3e6df; font: 13px/1.5 ui-monospace, monospace; padding: 16px; } pre { white-space: pre-wrap; } iframe { display: none; }</style>
+</head>
+<body>
+<pre id="log"></pre>
+<script type="module">
+// Renderiza varias capas de una pieza, una detrás de otra, con render.html:
+//   /render-lote.html?src=/renders/11/versiones/v3.strudel&tags=bombo,caja,charles&out=11/v3
+// Cada capa va a renders/<out>/<capa>.wav (y .json). Con «mezcla» en tags renderiza la pieza entera en <out>/mezcla.
+// Al acabar, document.title pasa a «listo» (o «error: …» si falló alguna); el progreso queda en window.lote.
+const q = new URLSearchParams(location.search);
+const logEl = document.getElementById('log');
+const log = t => { logEl.textContent += t + '\n'; };
+const tags = (q.get('tags') || '').split(',').map(t => t.trim()).filter(Boolean);
+const base = q.get('src') ? `src=${encodeURIComponent(q.get('src'))}` : `track=${encodeURIComponent(q.get('track') || '')}`;
+window.lote = { hechas: [], errores: [], actual: null };
+for (const t of tags) {
+  window.lote.actual = t;
+  const t0 = performance.now();
+  const f = document.createElement('iframe');
+  const fin = new Promise(r => {
+    const on = e => { if (e.source === f.contentWindow && e.data?.render) { removeEventListener('message', on); r(e.data); } };
+    addEventListener('message', on);
+  });
+  f.src = `/render.html?${base}&out=${encodeURIComponent(q.get('out') + '/' + t)}${t === 'mezcla' ? '' : '&tags=' + encodeURIComponent(t)}`;
+  document.body.appendChild(f);
+  const r = await fin;
+  f.remove();
+  (r.ok ? window.lote.hechas : window.lote.errores).push(t);
+  log(`${r.ok ? '✓' : '✗'} ${t} (${((performance.now() - t0) / 1000).toFixed(0)} s): ${r.msg}`);
+}
+window.lote.actual = null;
+document.title = window.lote.errores.length ? `error: ${window.lote.errores.join(', ')}` : 'listo';
+log(document.title);
+</script>
+</body>
+</html>

@@ -14,3 +14,6 @@ __pycache__/
 *.log
 .DS_Store
 Thumbs.db
+
+# Renders offline y comparaciones A/B (llevan audio sacado de las pistas de referencia)
+renders/

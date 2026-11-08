@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Render offline · Rosepetal Music</title>
+<style>body { background: #17110f; color: #f3e6df; font: 13px/1.5 ui-monospace, monospace; padding: 16px; } pre { white-space: pre-wrap; }</style>
+</head>
+<body>
+<pre id="log"></pre>
+<script type="module">
+// Render offline de una pieza (o de algunas de sus capas) a WAV, con el mismo Strudel que la página (1.2.6),
+// sin tiempo real: un OfflineAudioContext hace el audio tan deprisa como pueda el equipo.
+//
+//   /render.html?track=11-belleza-callada.strudel&tags=bombo,caja&out=11/v0/bateria
+//
+//   track  pieza de public/music/ (o src=/renders/11/versiones/v1.strudel para otra ruta del servidor)
+//   tags   capas que suenan (las marcadas en la pieza con .tag("…")), separadas por comas; sin tags, toda la pieza
+//   out    nombre dentro de renders/, sin extensión: guarda <out>.wav (estéreo, 48 kHz, 16 bits, a −6 dB fijos
+//          para no saturar) y <out>.json (cada nota con su tiempo, duración, capa y valores)
+//   bars   compases (por defecto, la suma de los arrange de la pieza) · tail: segundos de cola (6)
+//
+// Al acabar, document.title pasa a «listo» (o «error: …»).
+const q = new URLSearchParams(location.search);
+const logEl = document.getElementById('log');
+const log = (...a) => { logEl.textContent += a.join(' ') + '\n'; };
+// Si la abre render-lote.html (en un iframe), le avisa al acabar
+const avisa = (ok, msg) => { if (window.parent !== window) window.parent.postMessage({ render: true, ok, msg }, location.origin); };
+const fail = err => { log('ERROR', err?.stack || err); document.title = 'error: ' + (err?.message || err); avisa(false, String(err?.message || err)); };
+// Ceder el paso sin setTimeout: con la pestaña oculta, Chrome frena los temporizadores a uno por minuto
+const cede = () => new Promise(r => { const c = new MessageChannel(); c.port1.onmessage = r; c.port2.postMessage(0); });
+const SR = 48000, ESCALA = 0.5;
+
+try {
+  const src = q.get('src') || '/music/' + encodeURIComponent(q.get('track') || '');
+  const code = await (await fetch(src, { cache: 'no-store' })).text();
+  const tags = (q.get('tags') || '').split(',').map(t => t.trim()).filter(Boolean);
+  const out = q.get('out');
+  if (!out) throw new Error('falta out=');
+
+  // Duración, antes de crear el contexto (un OfflineAudioContext nace con su longitud):
+  // cpm = el último .cpm(…) de la pieza (compases por minuto); compases = la suma de un arrange([n, …], …)
+  const cpmExpr = [...code.matchAll(/\.cpm\(([^()]*(?:\([^()]*\))?[^()]*)\)/g)].pop()?.[1];
+  if (!cpmExpr || !/^[\d.\s/*+\-()]+$/.test(cpmExpr)) throw new Error('no encuentro .cpm(número) en la pieza');
+  const cpm = Function(`return (${cpmExpr})`)();
+  const arr = /arrange\(((?:\s*\[\s*\d+\s*,[^\]]*\]\s*,?)+)\s*\)/.exec(code);
+  const bars = Number(q.get('bars')) || (arr ? [...arr[1].matchAll(/\[\s*(\d+)\s*,/g)].reduce((s, m) => s + Number(m[1]), 0) : 0);
+  if (!bars) throw new Error('no sé cuántos compases tiene: añade bars=');
+  const barSec = 60 / cpm, tail = Number(q.get('tail') ?? 6), seconds = bars * barSec + tail;
+  log(`${src} · ${tags.length ? 'capas ' + tags.join(', ') : 'pieza entera'} · ${bars} compases de ${barSec.toFixed(4)} s · ${seconds.toFixed(1)} s`);
+
+  // Strudel crea su contexto con «new AudioContext()»: aquí ese nombre es un OfflineAudioContext de la duración justa.
+  // resume() no vale en un contexto offline antes de empezar: hasta entonces no hace nada.
+  window.AudioContext = class extends OfflineAudioContext {
+    constructor() { super({ numberOfChannels: 2, length: Math.ceil(seconds * SR), sampleRate: SR }); }
+    resume() { return this.rendering ? super.resume() : Promise.resolve(); }
+  };
+  const S = await import('https://unpkg.com/@strudel/web@1.2.6/dist/index.mjs');
+  // La reverb se genera aparte y llega más tarde: se apuntan todas para esperarlas antes de renderizar
+  const reverbs = [], createReverb = AudioContext.prototype.createReverb;
+  AudioContext.prototype.createReverb = function (...a) { const r = createReverb.apply(this, a); reverbs.push(r); return r; };
+
+  const repl = await S.initStrudel();
+  await S.initAudio({ maxPolyphony: 1e9 });
+  const idx = await (await fetch('/samples/index.json', { cache: 'no-store' })).json();
+  await S.samples(idx.banks, `${location.origin}/samples/`);
+
+  const pat = await repl.evaluate(code, false);
+  if (!pat?.queryArc) throw new Error('la pieza no se evalúa (mira la consola)');
+  const cps = repl.scheduler.cps, end = bars * barSec * cps;
+  let haps = pat.queryArc(0, end, { _cps: cps }).filter(h => h.hasOnset());
+  const known = new Set(haps.flatMap(h => h.context?.tags || []));
+  if ([...known].some(t => typeof t !== 'string')) throw new Error("las etiquetas van con comillas simples: .tag('bajo'), no .tag(\"bajo\")");
+  const missing = tags.filter(t => !known.has(t));
+  if (missing.length) throw new Error(`capas que no están en la pieza: ${missing.join(', ')} (hay: ${[...known].join(', ')})`);
+  if (tags.length) haps = haps.filter(h => (h.context?.tags || []).some(t => tags.includes(t)));
+  haps.sort((a, b) => a.whole.begin.valueOf() - b.whole.begin.valueOf());
+  log(`${haps.length} notas · programando…`);
+
+  // Se programa a trozos, como en tiempo real: el render se para cada VENTANA segundos y se programan las notas
+  // de la ventana siguiente. Programarlo todo de golpe deja cientos de filtros vivos desde el principio y va lentísimo.
+  const ctx = S.getAudioContext(), VENTANA = 4, notes = [];
+  const tOf = h => h.whole.begin.valueOf() / cps;
+  let next = 0;
+  const waitReverbs = async () => {
+    const t = performance.now();
+    while (reverbs.some(r => !r.buffer) && performance.now() - t < 10000) await cede();
+    if (reverbs.some(r => !r.buffer)) log('aviso: alguna reverb no llegó a generarse');
+  };
+  const scheduleUntil = async limit => {
+    for (; next < haps.length && tOf(haps[next]) < limit; next++) {
+      const h = haps[next], t = tOf(h), d = h.duration.valueOf() / cps;
+      await S.webaudioOutput(h, 0, d, cps, t);
+      notes.push({ t: +t.toFixed(5), d: +d.toFixed(5), tags: h.context?.tags || [], ...h.value });
+    }
+    await waitReverbs();
+  };
+  await scheduleUntil(2 * VENTANA);
+  for (let k = 1; k * VENTANA < seconds - VENTANA; k++) {
+    ctx.suspend(k * VENTANA).then(async () => {
+      try { await scheduleUntil((k + 2) * VENTANA); } catch (err) { fail(err); }
+      ctx.resume();
+    });
+  }
+
+  log('renderizando…');
+  const t0 = performance.now();
+  ctx.rendering = true;
+  const buf = await ctx.startRendering();
+  const chans = [buf.getChannelData(0), buf.getChannelData(1)];
+  let peak = 0;
+  for (const c of chans) for (let i = 0; i < c.length; i++) { const a = Math.abs(c[i]); if (a > peak) peak = a; }
+
+  // WAV de 16 bits a −6 dB fijos (ESCALA): la comparación divide por ESCALA para volver al nivel real
+  const n = buf.length, wav = new DataView(new ArrayBuffer(44 + n * 4));
+  const str = (o, s) => [...s].forEach((ch, i) => wav.setUint8(o + i, ch.charCodeAt(0)));
+  str(0, 'RIFF'); wav.setUint32(4, 36 + n * 4, true); str(8, 'WAVE'); str(12, 'fmt ');
+  wav.setUint32(16, 16, true); wav.setUint16(20, 1, true); wav.setUint16(22, 2, true); wav.setUint32(24, SR, true);
+  wav.setUint32(28, SR * 4, true); wav.setUint16(32, 4, true); wav.setUint16(34, 16, true); str(36, 'data'); wav.setUint32(40, n * 4, true);
+  let clipped = 0;
+  for (let i = 0, o = 44; i < n; i++) for (const c of chans) {
+    let v = c[i] * ESCALA;
+    if (v > 1 || v < -1) { clipped++; v = Math.max(-1, Math.min(1, v)); }
+    wav.setInt16(o, Math.round(v * 32767), true); o += 2;
+  }
+  const meta = { src, tags, bars, cpm, barSec, tail, cps, sampleRate: SR, escala: ESCALA, pico: peak, recortes: clipped, notas: notes };
+  for (const [ext, body] of [['.wav', wav.buffer], ['.json', JSON.stringify(meta)]]) {
+    const r = await fetch('/render-save?name=' + encodeURIComponent(out + ext), { method: 'POST', body });
+    if (!r.ok) throw new Error(`no se pudo guardar ${out}${ext}: ${r.status}`);
+  }
+  log(`listo en ${((performance.now() - t0) / 1000).toFixed(1)} s · pico ${(20 * Math.log10(peak || 1e-9)).toFixed(1)} dBFS` +
+      `${clipped ? ` · ${clipped} muestras recortadas` : ''} · renders/${out}.wav`);
+  document.title = 'listo';
+  avisa(true, logEl.textContent.trim().split(String.fromCharCode(10)).pop());
+} catch (err) { fail(err); }
+</script>
+</body>
+</html>
